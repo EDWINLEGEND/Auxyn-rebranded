@@ -181,5 +181,5 @@ try {
   console.error('Error generating images:', error.message);
   console.log('\nTo install the required dependencies for this script:');
   console.log('1. Run: npm install canvas');
-  console.log('2. Then run this script again: node fix-images.js');
+  console.log('2. Then run this script again: node scripts/fix-images.js');
 }

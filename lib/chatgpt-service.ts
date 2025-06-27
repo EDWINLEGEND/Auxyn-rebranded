@@ -76,20 +76,20 @@ export class ChatGPTService {
       });
       
       // Take a screenshot to see what the page looks like
-      await this.page.screenshot({ path: 'chatgpt-loaded.png' });
+      await this.page.screenshot({ path: 'public/images/debug-screenshots/chatgpt-loaded.png' });
       
       // Wait for the page to be fully loaded
       await this.page.waitForSelector('body', { timeout: 10000 });
       
       // Save a screenshot after initial loading
-      await this.page.screenshot({ path: 'initial-page-load.png' });
+      await this.page.screenshot({ path: 'public/images/debug-screenshots/initial-page-load.png' });
       
       // Check if login is required
       const needsLogin = await this.checkIfLoginRequired();
       
       if (needsLogin) {
         console.log('Login required. Please log in manually in the browser window.');
-        await this.page.screenshot({ path: 'login-required.png' });
+        await this.page.screenshot({ path: 'public/images/debug-screenshots/login-required.png' });
         
         // Wait for login to complete (either manually or automatically)
         await this.waitForLoginToComplete();
@@ -108,7 +108,7 @@ export class ChatGPTService {
     } catch (error) {
       console.error('Failed to initialize ChatGPT service:', error);
       if (this.page) {
-        await this.page.screenshot({ path: 'initialization-error.png' });
+        await this.page.screenshot({ path: 'public/images/debug-screenshots/initialization-error.png' });
       }
       await this.cleanup();
       throw error;
@@ -122,7 +122,7 @@ export class ChatGPTService {
     if (!this.page) return true;
     
     // Take screenshot before searching
-    await this.page.screenshot({ path: 'checking-login.png' });
+            await this.page.screenshot({ path: 'public/images/debug-screenshots/checking-login.png' });
     
     return await this.page.evaluate(() => {
       // Check for common login elements
@@ -195,7 +195,7 @@ export class ChatGPTService {
       }
 
       // Take a screenshot before interaction
-      await this.page.screenshot({ path: 'before-sending.png' });
+      await this.page.screenshot({ path: 'public/images/debug-screenshots/before-sending.png' });
       
       // Look for the Continue this conversation button and click it if found
       try {
@@ -277,7 +277,7 @@ export class ChatGPTService {
       
       // Take a screenshot for debugging
       if (this.page) {
-        await this.page.screenshot({ path: 'error-screenshot.png' });
+        await this.page.screenshot({ path: 'public/images/debug-screenshots/error-screenshot.png' });
       }
       
       // Try to restart browser on error

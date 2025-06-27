@@ -52,13 +52,29 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with Next.js and modern web technologies:
 
-- Vite
+- Next.js 14
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- Prisma (planned for database)
+- PostgreSQL (planned for database)
+
+## Project Structure
+
+```
+├── app/                    # Next.js 13+ app directory
+├── components/            # Reusable React components
+├── lib/                   # Utility libraries and services
+├── public/                # Static assets
+│   └── images/           # Image assets
+│       └── debug-screenshots/  # Development screenshots
+├── scripts/              # Development and maintenance scripts
+├── docs/                 # Project documentation
+└── ...config files
+```
 
 ## How can I deploy this project?
 
