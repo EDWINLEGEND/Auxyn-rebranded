@@ -186,7 +186,9 @@ export const StartupProfileForm: React.FC<{
                   value={formData.companyName}
                   onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
                   placeholder="Enter your company name"
-                  className={errors.companyName ? "border-red-500" : ""}
+                  className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:border-blue-300 ${
+                    errors.companyName ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.companyName && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -204,7 +206,7 @@ export const StartupProfileForm: React.FC<{
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Describe what your company does and the problem it solves"
                   rows={4}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:border-blue-300 ${
                     errors.description ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                   } dark:bg-gray-800 dark:text-white`}
                 />
@@ -222,7 +224,7 @@ export const StartupProfileForm: React.FC<{
                   id="stage"
                   value={formData.stage}
                   onChange={(e) => setFormData(prev => ({ ...prev, stage: e.target.value }))}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:border-blue-300 ${
                     errors.stage ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                   } dark:bg-gray-800 dark:text-white`}
                 >
@@ -248,6 +250,7 @@ export const StartupProfileForm: React.FC<{
                   value={formData.teamSize}
                   onChange={(e) => setFormData(prev => ({ ...prev, teamSize: parseInt(e.target.value) || 1 }))}
                   placeholder="Number of team members"
+                  className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:border-blue-300`}
                 />
               </div>
 
@@ -258,6 +261,7 @@ export const StartupProfileForm: React.FC<{
                   value={formData.location}
                   onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                   placeholder="City, Country"
+                  className={`w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 hover:border-blue-300`}
                 />
               </div>
 

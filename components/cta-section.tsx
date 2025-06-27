@@ -313,7 +313,7 @@ export const CTASection = () => {
                   <Link href="/ai">
                     <Button 
                       size="lg"
-                      className="group relative overflow-hidden bg-white text-green-600 hover:text-green-700 text-lg font-bold px-8 py-6 h-auto rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-white/20"
+                      className="group relative overflow-hidden bg-white text-green-600 hover:text-green-700 text-lg font-bold px-8 py-6 h-auto rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 hover:scale-105 hover:-translate-y-1 border-2 border-white/20 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-green-500/10 before:to-blue-500/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         Get Started Free
@@ -326,7 +326,7 @@ export const CTASection = () => {
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="group flex items-center gap-3 text-lg font-semibold h-auto px-6 py-6 border-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 rounded-2xl backdrop-blur-sm hover:shadow-lg"
+                    className="group flex items-center gap-3 text-lg font-semibold h-auto px-6 py-6 border-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 rounded-2xl backdrop-blur-sm hover:shadow-lg hover:shadow-white/10 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
                   >
                     <span className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300 shadow-lg">
                       <Play size={16} className="text-white ml-0.5" />

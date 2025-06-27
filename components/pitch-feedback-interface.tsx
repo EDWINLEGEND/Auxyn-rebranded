@@ -363,7 +363,7 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
               </div>
 
               {/* Detailed Ratings */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-[20px]">
                 <div className="text-center">
                   <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Business Model</div>
                   <StarRating rating={feedback.businessModelRating} readonly />
@@ -447,7 +447,7 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
                     <MessageSquare className="h-4 w-4" />
                     General Comments
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-[20px]">
                     {feedback.generalComments}
                   </p>
                 </div>
@@ -460,7 +460,7 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
                     <Target className="h-4 w-4" />
                     Next Steps
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-[20px]">
                     {feedback.nextSteps}
                   </p>
                 </div>
@@ -599,7 +599,7 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
                 ? feedbacks.reduce((sum, f) => sum + (f as any)[key], 0) / feedbacks.length 
                 : 0;
               return (
-                <div key={key} className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                <div key={key} className="text-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-[20px]">
                   <div className="text-lg font-bold text-blue-600">{avg.toFixed(1)}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">{label}</div>
                   <StarRating rating={Math.round(avg)} readonly />
@@ -799,7 +799,7 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
                 <button
                   key={option.value}
                   onClick={() => setNewFeedback(prev => ({ ...prev, interestLevel: option.value as any }))}
-                  className={`p-3 rounded-lg border-2 transition-all ${
+                  className={`p-3 rounded-[20px] border-2 transition-all ${
                     newFeedback.interestLevel === option.value
                       ? `border-${option.color}-500 bg-${option.color}-50 dark:bg-${option.color}-900/20`
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'

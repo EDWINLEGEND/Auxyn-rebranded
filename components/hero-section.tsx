@@ -167,7 +167,7 @@ export const HeroSection = () => {
               <Link href="/ai">
                 <Button 
                   size="lg" 
-                  className="group relative overflow-hidden bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg font-semibold px-8 py-6 h-auto rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                  className="group relative overflow-hidden bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white text-lg font-semibold px-8 py-6 h-auto rounded-2xl shadow-xl hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 hover:scale-105 hover:-translate-y-1"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     Start Free Trial
@@ -180,7 +180,7 @@ export const HeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="group flex items-center gap-3 text-lg font-semibold h-auto px-6 py-6 border-2 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-400 transition-all duration-300 rounded-2xl backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-lg"
+                className="group flex items-center gap-3 text-lg font-semibold h-auto px-6 py-6 border-2 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-400 transition-all duration-300 rounded-2xl backdrop-blur-sm bg-white/50 dark:bg-slate-800/50 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-lg hover:shadow-green-500/10 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-green-500/10 before:to-blue-500/10 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
               >
                 <span className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                   <Play size={16} className="text-white ml-0.5" />

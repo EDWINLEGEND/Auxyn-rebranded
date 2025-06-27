@@ -301,7 +301,12 @@ export const CommunicationInterface: React.FC<CommunicationInterfaceProps> = ({
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'UTC'
+    });
   };
 
   const formatDate = (timestamp: string) => {
@@ -398,7 +403,7 @@ export const CommunicationInterface: React.FC<CommunicationInterfaceProps> = ({
                 </div>
                 <div className="text-sm">
                   <div className="font-medium">{message.meetingDetails.title}</div>
-                  <div>{new Date(message.meetingDetails.date).toLocaleString()}</div>
+                  <div>{new Date(message.meetingDetails.date).toLocaleString('en-US', { timeZone: 'UTC' })}</div>
                   <div>Duration: {message.meetingDetails.duration}</div>
                 </div>
                 {message.meetingDetails.link && (

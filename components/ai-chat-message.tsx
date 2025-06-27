@@ -1,10 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, Bot, CheckCircle2, AlertCircle, Clock, Wifi } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { useWebhookStatus, WebhookStatus } from '@/lib/use-webhook-status';
+import { formatTime } from "@/lib/utils";
+import { TimeDisplay } from "@/components/ui/time-display";
 
 interface AiChatMessageProps {
   message?: {
@@ -117,6 +119,12 @@ const TypingIndicator: React.FC = () => (
 );
 
 export const AiChatMessage: React.FC<AiChatMessageProps> = ({ message, isLoading }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Safety check for undefined message
   if (!message && !isLoading) {
     return null;
@@ -171,8 +179,8 @@ export const AiChatMessage: React.FC<AiChatMessageProps> = ({ message, isLoading
           className={`
             rounded-2xl px-4 py-3 shadow-sm border transition-all duration-200
             ${isUser 
-              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-transparent shadow-lg hover:shadow-xl" 
-              : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:shadow-md"
+              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-transparent shadow-lg hover:shadow-xl hover:shadow-blue-500/25 rounded-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+              : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-700 hover:shadow-md rounded-xl hover:shadow-slate-500/10 transition-all duration-300 hover:-translate-y-0.5"
             }
           `}
           whileHover={{ scale: 1.01 }}
@@ -243,7 +251,7 @@ export const AiChatMessage: React.FC<AiChatMessageProps> = ({ message, isLoading
             {isUser ? "You" : "AI Startup Mentor"}
           </span>
           <span className="text-xs text-slate-400 dark:text-slate-500">
-            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {mounted ? formatTime(new Date()) : null}
           </span>
         </motion.div>
       </div>

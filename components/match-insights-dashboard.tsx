@@ -589,7 +589,7 @@ export const MatchInsightsDashboard: React.FC<MatchInsightsDashboardProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-[20px]">
               <Info className="h-5 w-5 text-blue-600 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -601,7 +601,7 @@ export const MatchInsightsDashboard: React.FC<MatchInsightsDashboardProps> = ({
               </div>
             </div>
             
-            <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-[20px]">
               <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-green-900 dark:text-green-100 mb-1">
@@ -613,7 +613,7 @@ export const MatchInsightsDashboard: React.FC<MatchInsightsDashboardProps> = ({
               </div>
             </div>
             
-            <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-[20px]">
               <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">

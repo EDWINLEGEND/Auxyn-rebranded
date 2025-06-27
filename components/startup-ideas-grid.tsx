@@ -29,7 +29,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
 }) => {
   
   return (
-    <div className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-xl overflow-hidden">
+    <div className="w-full bg-white dark:bg-gray-900 rounded-[20px] shadow-xl overflow-hidden">
       <div className="p-6 border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -40,7 +40,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
             {onAnalyzeSelected && selectedIdeas.length > 0 && (
               <Button
                 onClick={onAnalyzeSelected}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-xl shadow-lg hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
                 size="sm"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -72,7 +72,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+              className={`p-4 border rounded-[20px] cursor-pointer transition-all duration-200 ${
                 selectedIdeas.includes(idea.id)
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                   : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
@@ -102,7 +102,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
                   {selectedIdeas.includes(idea.id) && (
                     <Button
                       size="sm"
-                      className="mt-3 w-full"
+                      className="mt-3 w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-xl shadow-lg hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         onSelectIdea(idea.id);
@@ -118,7 +118,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
         </div>
         
         {selectedIdeas.length > 0 && onAnalyzeSelected && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700">
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-[20px] border border-green-200 dark:border-green-700">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold text-green-800 dark:text-green-200">
@@ -130,7 +130,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
               </div>
               <Button
                 onClick={onAnalyzeSelected}
-                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 rounded-xl shadow-lg hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Analyze Now

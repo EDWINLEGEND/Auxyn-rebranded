@@ -410,7 +410,7 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
+                className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-[20px]"
               >
                 <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-gray-700 dark:text-gray-300">{reason}</span>
@@ -495,7 +495,7 @@ export const MatchDetailsModal: React.FC<MatchDetailsModalProps> = ({
           <CardTitle className="text-lg">Connect with {match.name}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-[20px] p-4">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-blue-600 mt-0.5" />
               <div>

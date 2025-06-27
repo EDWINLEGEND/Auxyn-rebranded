@@ -33,13 +33,11 @@ export default function RootLayout({
       <body className={`${inter.variable} ${outfit.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
-          <SonnerToaster />
         </ThemeProvider>
       </body>
     </html>
