@@ -1,0 +1,40 @@
+# Image Update Sources
+
+## Segment Images
+- default-segment.jpg: https://unsplash.com/photos/5QgIuuBxKwM - Christina @ wocintechchat.com
+- healthcare-providers.jpg: https://unsplash.com/photos/NFvdKIhxYlU - National Cancer Institute
+- remote-professionals.jpg: https://unsplash.com/photos/QckxruozjRg - Surface
+- small-business-owners.jpg: https://unsplash.com/photos/5fNmWej4tAA - Scott Graham
+- tech-startups.jpg: https://unsplash.com/photos/7BhTfoKsheQ - Austin Distel
+
+## Idea Images
+- analytics-pro.jpg: https://unsplash.com/photos/JKUTrJ4vK00 - Luke Chesser
+- community-hub.jpg: https://unsplash.com/photos/doplSDELX7E - Dylan Gillis
+- data-simplify.jpg: https://unsplash.com/photos/oqStl2L5oxI - Carlos Muza
+- default-idea.jpg: https://unsplash.com/photos/6HzhFuiVO60 - UX Indonesia
+- eco-solutions.jpg: https://unsplash.com/photos/oMpAz-DN-9I - NASA
+- expert-network.jpg: https://unsplash.com/photos/Oalh2MojUuk - LinkedIn Sales Solutions
+- health-assistant.jpg: https://unsplash.com/photos/YO9ZVNxMH88 - National Cancer Institute
+- pro-insight.jpg: https://unsplash.com/photos/iar-afB0QQw - Stephen Dawson
+- quick-flow.jpg: https://unsplash.com/photos/bU6JyhSI6zo - Myriam Jessier
+- smart-connect.jpg: https://unsplash.com/photos/iGYiBhdNTpE - Kevin Ku
+- smart-tracker.jpg: https://unsplash.com/photos/T6fDN60bMWY - Fitbit
+
+## Mentor Images
+- sarah-johnson.jpg: https://unsplash.com/photos/IF9TK5Uy-KI - Christina @ wocintechchat.com
+- michael-chen.jpg: https://unsplash.com/photos/6anudmpILw4 - ThisisEngineering RAEng
+- priya-patel.jpg: https://unsplash.com/photos/QXevDflbl8A - Christina @ wocintechchat.com
+- david-rodriguez.jpg: https://unsplash.com/photos/h1BuNJZzpC8 - Maxim Hopman
+- elena-kim.jpg: https://unsplash.com/photos/eVIcDcU5nyA - Christina @ wocintechchat.com
+
+## Resource Images
+- founders-playbook.jpg: https://unsplash.com/photos/jJT2r2n7lYA - Kimberly Farmer
+- pitch-deck.jpg: https://unsplash.com/photos/5fNmWej4tAA - Scott Graham
+- metrics-dashboard.jpg: https://unsplash.com/photos/JBAMGVVgaHA - Luke Chesser
+- legal-docs.jpg: https://unsplash.com/photos/aJTiW00qqtI - Cytonn Photography
+- growth-hacking.jpg: https://unsplash.com/photos/bzdhc5b3Bxs - Isaac Smith
+
+## Logo Images
+- All logo images can be generated using a logo creation service with proper commercial licensing.
+
+All images are from Unsplash.com and are free to use under the Unsplash License.
