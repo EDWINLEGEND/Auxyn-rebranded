@@ -2,8 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Prevent automatic file generation
-  output: 'standalone',
   images: {
     domains: ['images.unsplash.com'],
     // Prevent image optimization which creates files
