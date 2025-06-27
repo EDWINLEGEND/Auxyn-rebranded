@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { useWebhookStatus, WebhookStatus } from '@/lib/use-webhook-status';
 
 interface AiChatMessageProps {
-  message: {
+  message?: {
     role: "user" | "assistant";
     content: string;
   };
@@ -36,6 +36,11 @@ const StatusIndicator: React.FC<{ status: WebhookStatus }> = ({ status }) => {
 };
 
 export const AiChatMessage: React.FC<AiChatMessageProps> = ({ message, isLoading }) => {
+  // Safety check for undefined message
+  if (!message) {
+    return null;
+  }
+  
   const isUser = message.role === "user";
   const webhookStatus = useWebhookStatus();
   

@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserTypeModal } from "@/components/user-type-modal";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserTypeModal, setShowUserTypeModal] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -70,12 +72,18 @@ export const Navbar = () => {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
             <ThemeToggle />
-            <Button variant="ghost">Log in</Button>
-            <Link href="/ai">
-              <Button className="bg-gradient-primary">
-                Get Started
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost"
+              onClick={() => setShowUserTypeModal(true)}
+            >
+              Log in
+            </Button>
+            <Button 
+              className="bg-gradient-primary"
+              onClick={() => setShowUserTypeModal(true)}
+            >
+              Get Started
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -131,20 +139,31 @@ export const Navbar = () => {
                   Contact
                 </Link>
                 <div className="flex flex-col gap-2 mt-2 pt-2 border-t dark:border-slate-800">
-                  <Button variant="ghost" className="justify-start">
+                  <Button 
+                    variant="ghost" 
+                    className="justify-start"
+                    onClick={() => setShowUserTypeModal(true)}
+                  >
                     Log in
                   </Button>
-                  <Link href="/ai">
-                    <Button className="bg-gradient-primary w-full">
-                      Get Started
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="bg-gradient-primary w-full"
+                    onClick={() => setShowUserTypeModal(true)}
+                  >
+                    Get Started
+                  </Button>
                 </div>
               </nav>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* User Type Selection Modal */}
+      <UserTypeModal 
+        isOpen={showUserTypeModal}
+        onClose={() => setShowUserTypeModal(false)}
+      />
     </header>
   );
 }; 
