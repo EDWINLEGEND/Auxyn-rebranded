@@ -29,7 +29,7 @@ import {
   SortAsc,
   SortDesc
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+// import { motion, AnimatePresence } from "framer-motion";
 
 interface StartupData {
   id: number;
@@ -69,6 +69,10 @@ interface StartupData {
   views: number;
   interests: number;
   bookmarks: number;
+  
+  // Rating
+  rating: number;
+  totalRatings: number;
 }
 
 interface StartupDiscoveryGridProps {
@@ -76,6 +80,7 @@ interface StartupDiscoveryGridProps {
   onViewStartup: (startupId: number) => void;
   onExpressInterest: (startupId: number) => void;
   onBookmarkStartup: (startupId: number) => void;
+  onRateStartup?: (startupId: number) => void;
   savedStartups?: number[];
   interestedStartups?: number[];
 }
@@ -107,7 +112,9 @@ const mockStartups: StartupData[] = [
     responseRate: 85,
     views: 1250,
     interests: 23,
-    bookmarks: 45
+    bookmarks: 45,
+    rating: 4.5,
+    totalRatings: 127
   },
   {
     id: 2,
@@ -135,7 +142,9 @@ const mockStartups: StartupData[] = [
     responseRate: 72,
     views: 890,
     interests: 15,
-    bookmarks: 28
+    bookmarks: 28,
+    rating: 4.2,
+    totalRatings: 83
   },
   {
     id: 3,
@@ -163,7 +172,9 @@ const mockStartups: StartupData[] = [
     responseRate: 78,
     views: 2100,
     interests: 38,
-    bookmarks: 67
+    bookmarks: 67,
+    rating: 4.7,
+    totalRatings: 256
   }
 ];
 
@@ -176,6 +187,7 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
   onViewStartup,
   onExpressInterest,
   onBookmarkStartup,
+  onRateStartup,
   savedStartups = [],
   interestedStartups = []
 }) => {
@@ -239,13 +251,28 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
     }
   };
 
+  const renderStarRating = (rating: number) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star 
+            key={star} 
+            className={`h-3 w-3 ${
+              star <= rating 
+                ? 'text-yellow-400 fill-yellow-400' 
+                : 'text-gray-300'
+            }`} 
+          />
+        ))}
+        <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">
+          {rating.toFixed(1)}
+        </span>
+      </div>
+    );
+  };
+
   const renderStartupCard = (startup: StartupData, index: number) => (
-    <motion.div
-      key={startup.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-    >
+    <div key={startup.id}>
       <Card className="h-full hover:shadow-lg transition-all duration-200 group relative overflow-hidden">
         {/* Featured/Trending badges */}
         <div className="absolute top-4 left-4 z-10 flex gap-2">
@@ -287,6 +314,10 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
                 {startup.verified && (
                   <CheckCircle className="h-4 w-4 text-green-500" />
                 )}
+              </div>
+              
+              <div className="mb-2">
+                {renderStarRating(startup.rating)}
               </div>
               
               <div className="flex items-center gap-2 mb-2">
@@ -379,6 +410,18 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
               View Details
             </Button>
             
+            {onRateStartup && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onRateStartup(startup.id)}
+                className="flex-1"
+              >
+                <Star className="h-4 w-4 mr-1" />
+                Rate
+              </Button>
+            )}
+            
             {!interestedStartups.includes(startup.id) ? (
               <Button
                 size="sm"
@@ -402,7 +445,7 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 
   return (
@@ -476,14 +519,8 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
       </Card>
 
       {/* Advanced Filters */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+      {showFilters && (
+        <div>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Filter Startups</CardTitle>
@@ -545,9 +582,8 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
 
       {/* Results Grid */}
       {sortedStartups.length > 0 ? (
