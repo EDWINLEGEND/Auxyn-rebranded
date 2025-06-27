@@ -519,7 +519,7 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
       </Card>
 
       {/* Advanced Filters */}
-      {showFilters && (
+        {showFilters && (
         <div>
             <Card>
               <CardHeader>
@@ -583,7 +583,7 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
               </CardContent>
             </Card>
         </div>
-      )}
+        )}
 
       {/* Results Grid */}
       {sortedStartups.length > 0 ? (

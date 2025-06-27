@@ -481,7 +481,7 @@ export default function InvestorStartupsPage() {
                       >
                         <Heart className="h-4 w-4 mr-2" />
                         {interestedStartups.includes(startup.id) ? "Interest Sent" : "Express Interest"}
-                      </Button>
+                    </Button>
                     </div>
                   </div>
 
@@ -607,7 +607,7 @@ export default function InvestorStartupsPage() {
           <p className="text-gray-600 dark:text-gray-400">
             Try adjusting your search criteria or filters.
           </p>
-                </div>
+        </div>
       )}
 
       {/* Startup Details Modal */}
@@ -628,6 +628,6 @@ export default function InvestorStartupsPage() {
         onSubmitRating={handleSubmitRating}
         defaultTab={ratingModalDefaultTab}
       />
-    </div>  
+    </div>
   );
 } 
