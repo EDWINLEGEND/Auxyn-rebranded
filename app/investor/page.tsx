@@ -345,8 +345,7 @@ export default function InvestorChatPage() {
         {messages.map((message, index) => (
           <AiChatMessage
             key={index}
-            role={message.role}
-            content={message.content}
+            message={message}
           />
         ))}
         

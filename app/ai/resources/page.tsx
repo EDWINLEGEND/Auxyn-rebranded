@@ -552,7 +552,6 @@ export default function ResourcesPage() {
                       {grant.name}
                     </CardTitle>
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">{grant.type}</Badge>
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         {grant.amount}
                       </Badge>

@@ -26,13 +26,13 @@ interface StartupIdea {
 }
 
 interface IdeasSurveyModalProps {
-  isOpen: boolean;
   onClose: () => void;
+  onSubmit?: (prompt: string) => void;
   onComplete?: (generatedPrompt: string) => void;
   onGeneratePrompt?: (prompt: string) => void;
 }
 
-export const IdeasSurveyModal: React.FC<IdeasSurveyModalProps> = ({ isOpen, onClose, onComplete, onGeneratePrompt }) => {
+export const IdeasSurveyModal: React.FC<IdeasSurveyModalProps> = ({ onClose, onSubmit, onComplete, onGeneratePrompt }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, any>>({});
   const [hasIdea, setHasIdea] = useState<boolean | null>(null);
@@ -511,6 +511,9 @@ export const IdeasSurveyModal: React.FC<IdeasSurveyModalProps> = ({ isOpen, onCl
     if (onGeneratePrompt) {
       onGeneratePrompt(generatedPrompt);
     }
+    if (onSubmit) {
+      onSubmit(generatedPrompt);
+    }
     onClose();
   };
 
@@ -767,46 +770,42 @@ export const IdeasSurveyModal: React.FC<IdeasSurveyModalProps> = ({ isOpen, onCl
   )}
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50"
-            onClick={onClose}
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
+      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-6 max-w-xl w-full m-4 overflow-hidden"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        
+        {/* Progress bar */}
+        <div className="w-full h-1 bg-slate-100 dark:bg-slate-700 rounded-full mb-6">
+          <div 
+            className="h-full bg-gradient-primary rounded-full"
+            style={{ 
+              width: `${calculateProgress()}%`,
+              transition: 'width 0.5s ease'
+            }}
           />
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-6 max-w-xl w-full m-4 overflow-hidden"
-          >
-            <button 
-              onClick={onClose}
-              className="absolute top-3 right-3 p-1.5 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            
-            {/* Progress bar */}
-            <div className="w-full h-1 bg-slate-100 dark:bg-slate-700 rounded-full mb-6">
-              <div 
-                className="h-full bg-gradient-primary rounded-full"
-                style={{ 
-                  width: `${calculateProgress()}%`,
-                  transition: 'width 0.5s ease'
-                }}
-              />
-            </div>
-            
-            {renderQuestion()}
-          </motion.div>
         </div>
-      )}
-    </AnimatePresence>
+        
+        {renderQuestion()}
+      </motion.div>
+    </div>
   );
 }; 

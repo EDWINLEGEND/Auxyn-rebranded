@@ -826,7 +826,12 @@ export const PitchFeedbackInterface: React.FC<PitchFeedbackInterfaceProps> = ({
 
           {/* Submit Button */}
           <Button 
-            onClick={() => onSubmitFeedback?.(newFeedback)}
+            onClick={() => onSubmitFeedback?.({
+              ...newFeedback,
+              strengths: newFeedback.strengths.split('\n').filter(s => s.trim()),
+              weaknesses: newFeedback.weaknesses.split('\n').filter(s => s.trim()),
+              suggestions: newFeedback.suggestions.split('\n').filter(s => s.trim())
+            })}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600"
             disabled={newFeedback.overallRating === 0}
           >

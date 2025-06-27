@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Check, ArrowRight } from 'lucide-react';
+import { Lightbulb, Check, ArrowRight, BarChart3 } from 'lucide-react';
 
 interface StartupIdea {
   id: number;
@@ -16,6 +16,7 @@ interface StartupIdeasGridProps {
   ideas: StartupIdea[];
   selectedIdeas?: number[];
   onSelectIdea: (ideaId: number) => void;
+  onAnalyzeSelected?: () => void;
   onClose?: () => void;
 }
 
@@ -23,6 +24,7 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
   ideas, 
   selectedIdeas = [], 
   onSelectIdea,
+  onAnalyzeSelected,
   onClose
 }) => {
   
@@ -34,19 +36,31 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
             <Lightbulb className="h-6 w-6 text-blue-500 mr-3" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Startup Ideas</h2>
           </div>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Close
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onAnalyzeSelected && selectedIdeas.length > 0 && (
+              <Button
+                onClick={onAnalyzeSelected}
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                size="sm"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analyze Selected ({selectedIdeas.length})
+              </Button>
+            )}
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                Close
+              </Button>
+            )}
+          </div>
         </div>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Select an idea to develop it with AI assistance.
+          Select ideas to develop them with AI assistance. You can select multiple ideas for comparison.
         </p>
       </div>
       
@@ -102,6 +116,28 @@ export const StartupIdeasGrid: React.FC<StartupIdeasGridProps> = ({
             </motion.div>
           ))}
         </div>
+        
+        {selectedIdeas.length > 0 && onAnalyzeSelected && (
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200 dark:border-green-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-semibold text-green-800 dark:text-green-200">
+                  {selectedIdeas.length} idea{selectedIdeas.length > 1 ? 's' : ''} selected
+                </h4>
+                <p className="text-sm text-green-600 dark:text-green-300">
+                  Click "Analyze Selected" to get AI insights and comparisons
+                </p>
+              </div>
+              <Button
+                onClick={onAnalyzeSelected}
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analyze Now
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
