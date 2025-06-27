@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { 
   BarChart, 
   CheckCircle, 
@@ -21,7 +23,11 @@ import {
   Download,
   ArrowRight,
   Trash2,
-  Edit3
+  Edit3,
+  Search,
+  Activity,
+  Award,
+  Lightbulb
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -198,51 +204,21 @@ const tasks: Task[] = [
   },
   {
     id: 3,
-    title: "Implement user authentication system",
+    title: "Build core product features",
     milestone: "MVP Development",
-    status: "completed",
-    priority: "medium",
-    dueDate: "2024-04-15",
-    assignee: "You",
-    completedDate: "2024-04-12",
+    status: "in-progress",
+    priority: "high",
+    dueDate: "2024-05-15",
+    assignee: "Development Team",
+    completedDate: null,
   },
   {
     id: 4,
-    title: "Design core user interface components",
-    milestone: "MVP Development",
-    status: "in-progress",
-    priority: "high",
-    dueDate: "2024-04-20",
-    assignee: "You",
-    completedDate: null,
-  },
-  {
-    id: 5,
     title: "Set up analytics tracking",
     milestone: "MVP Development",
-    status: "not-started",
+    status: "pending",
     priority: "medium",
-    dueDate: "2024-05-01",
-    assignee: "You",
-    completedDate: null,
-  },
-  {
-    id: 6,
-    title: "Create outreach email template for beta users",
-    milestone: "First Paying Customer",
-    status: "in-progress",
-    priority: "medium",
-    dueDate: "2024-05-10",
-    assignee: "You",
-    completedDate: null,
-  },
-  {
-    id: 7,
-    title: "Implement payment processing system",
-    milestone: "First Paying Customer",
-    status: "not-started",
-    priority: "high",
-    dueDate: "2024-05-25",
+    dueDate: "2024-05-20",
     assignee: "You",
     completedDate: null,
   },
@@ -267,7 +243,8 @@ const kpiIcons = {
 };
 
 export default function ProgressTrackingPage() {
-  const [activeTab, setActiveTab] = useState("milestones");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
   const [activeMilestone, setActiveMilestone] = useState<number>(2);
   const [filterStatus, setFilterStatus] = useState("all");
   
@@ -285,559 +262,371 @@ export default function ProgressTrackingPage() {
     return acc + milestonePercentage;
   }, 0) / milestones.length;
   
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed": return "text-green-600 bg-green-100 dark:bg-green-900/20";
+      case "in-progress": return "text-blue-600 bg-blue-100 dark:bg-blue-900/20";
+      case "not-started": return "text-gray-600 bg-gray-100 dark:bg-gray-900/20";
+      case "on-track": return "text-green-600 bg-green-100 dark:bg-green-900/20";
+      case "needs-improvement": return "text-red-600 bg-red-100 dark:bg-red-900/20";
+      default: return "text-gray-600 bg-gray-100 dark:bg-gray-900/20";
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high": return "text-red-600 bg-red-100 dark:bg-red-900/20";
+      case "medium": return "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20";
+      case "low": return "text-green-600 bg-green-100 dark:bg-green-900/20";
+      default: return "text-gray-600 bg-gray-100 dark:bg-gray-900/20";
+    }
+  };
+
   return (
-    <div className="container mx-auto py-10 px-4 md:px-6 max-w-6xl">
+    <div className="container mx-auto py-10 px-4 md:px-6 max-w-7xl">
       <div className="flex items-center gap-3 mb-10">
-        <div className="p-2 rounded-lg bg-gradient-primary">
-          <BarChart className="h-6 w-6 text-white" />
+        <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-600">
+          <Activity className="h-6 w-6 text-white" />
         </div>
         <div>
           <h1 className="text-3xl font-clash font-bold">Progress Tracking</h1>
-          <p className="text-slate-600 dark:text-slate-400">Track your startup's milestones, KPIs, and tasks</p>
+          <p className="text-slate-600 dark:text-slate-400">Monitor your startup's growth and milestones</p>
         </div>
       </div>
-      
-      {/* Overview Section */}
-      <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Overall Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold">{Math.round(totalMilestoneProgress)}%</div>
-              <div className="w-16 h-16 rounded-full border-4 border-emerald-100 dark:border-emerald-900/30 relative">
-                <div 
-                  className="absolute inset-0.5 rounded-full border-4 border-emerald-500"
-                  style={{ 
-                    clipPath: `polygon(0 0, 100% 0, 100% 100%, 0% 100%)`,
-                    opacity: totalMilestoneProgress / 100 
-                  }}
-                ></div>
-              </div>
-            </div>
-            <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              Based on {milestones.length} milestones
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Upcoming Deadline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-lg font-medium">MVP Development</div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                  <Clock className="h-3.5 w-3.5 inline-block mr-1" />
-                  Due in 12 days
-                </div>
-              </div>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-medium">
-                <span>67%</span>
-                <span>complete</span>
-              </div>
-            </div>
-            <div className="mt-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-              <div 
-                className="bg-amber-500 h-2 rounded-full" 
-                style={{ width: "67%" }}
-              ></div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">Tasks Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">3</div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">Completed</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">2</div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">In Progress</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
-                <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">2</div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">Not Started</div>
-              </div>
-            </div>
-            <div className="mt-4 flex">
-              <Button variant="outline" size="sm" className="w-full text-xs">
-                <Plus className="mr-1 h-3 w-3" />
-                Add New Task
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search milestones, KPIs, or tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button className="bg-gradient-to-r from-purple-500 to-pink-600">
+            <Search className="h-4 w-4 mr-2" />
+            Search
+          </Button>
+        </div>
       </div>
-      
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="milestones" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-          <TabsTrigger value="milestones" className="flex items-center gap-2">
-            <Flag className="h-4 w-4" />
-            Milestones
-          </TabsTrigger>
-          <TabsTrigger value="kpis" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Key Performance Indicators
-          </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4" />
-            Task Management
-          </TabsTrigger>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="milestones">Milestones</TabsTrigger>
+          <TabsTrigger value="kpis">KPIs</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
         </TabsList>
-        
-        {/* Milestones Tab */}
-        <TabsContent value="milestones">
+
+        <TabsContent value="overview" className="space-y-8">
+          {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="md:col-span-1">
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle>Milestones</CardTitle>
-                  <CardDescription>Track your key business milestones</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {milestones.map((milestone) => (
-                    <Button
-                      key={milestone.id}
-                      variant={activeMilestone === milestone.id ? "default" : "outline"}
-                      className={`w-full justify-between text-left font-normal ${
-                        activeMilestone === milestone.id ? "bg-gradient-primary" : ""
-                      }`}
-                      onClick={() => setActiveMilestone(milestone.id)}
-                    >
-                      <div className="flex items-center">
-                        {milestone.status === "completed" ? (
-                          <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" />
-                        ) : milestone.status === "in-progress" ? (
-                          <Circle className="h-4 w-4 mr-2 text-amber-500" />
-                        ) : (
-                          <Circle className="h-4 w-4 mr-2 text-slate-300" />
-                        )}
-                        <span>{milestone.title}</span>
-                      </div>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  ))}
-                </CardContent>
-                <CardFooter>
-                  <Button variant="outline" className="w-full">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Milestone
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Completion Rate</CardTitle>
+                <CardDescription>Overall progress</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{Math.round(totalMilestoneProgress)}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">+12% this month</div>
+              </CardContent>
+            </Card>
             
-            <div className="md:col-span-3">
-              <Card className="h-full">
-                <CardHeader className="border-b border-slate-200 dark:border-slate-700 pb-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden relative mr-2">
-                          <Image
-                            src={milestoneImages[milestones[activeMilestone - 1].title as keyof typeof milestoneImages] || "/images/milestones/default-milestone.jpg"}
-                            alt={milestones[activeMilestone - 1].title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <CardTitle className="text-2xl">{milestones[activeMilestone - 1].title}</CardTitle>
-                        {milestones[activeMilestone - 1].status === "completed" ? (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                            Completed
-                          </span>
-                        ) : milestones[activeMilestone - 1].status === "in-progress" ? (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                            In Progress
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
-                            Not Started
-                          </span>
-                        )}
-                      </div>
-                      <CardDescription className="mt-1">{milestones[activeMilestone - 1].description}</CardDescription>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Download className="mr-2 h-4 w-4" />
-                        Export
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4">Progress</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm">Completion</span>
-                            <span className="text-sm font-medium">
-                              {Math.round((milestones[activeMilestone - 1].completedTasks / milestones[activeMilestone - 1].totalTasks) * 100)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                milestones[activeMilestone - 1].status === "completed" 
-                                  ? "bg-emerald-500" 
-                                  : "bg-amber-500"
-                              }`}
-                              style={{ 
-                                width: `${(milestones[activeMilestone - 1].completedTasks / milestones[activeMilestone - 1].totalTasks) * 100}%` 
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="text-sm">Tasks Completed:</div>
-                            <div className="text-sm font-medium">
-                              {milestones[activeMilestone - 1].completedTasks} / {milestones[activeMilestone - 1].totalTasks}
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="sm" className="h-7 text-xs">
-                            View Tasks
-                          </Button>
-                        </div>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Active Milestones</CardTitle>
+                <CardDescription>In progress</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">2</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">3 completed</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">KPIs On Track</CardTitle>
+                <CardDescription>Meeting targets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">3/5</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">60% success rate</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Tasks Completed</CardTitle>
+                <CardDescription>This month</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{filteredTasks.length}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">8 pending</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Progress Summary */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Achievements</CardTitle>
+                <CardDescription>Your latest accomplishments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {milestones.filter(m => m.status === "completed").slice(0, 3).map((milestone) => (
+                    <div key={milestone.id} className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      <div>
+                        <h4 className="font-medium">{milestone.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Completed {milestone.completedDate}
+                        </p>
                       </div>
                     </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4">Timeline</h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            <span className="text-sm">Target Date:</span>
-                          </div>
-                          <span className="text-sm font-medium">
-                            {new Date(milestones[activeMilestone - 1].targetDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </span>
-                        </div>
-                        
-                        {milestones[activeMilestone - 1].completedDate && (
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-emerald-500" />
-                              <span className="text-sm">Completed:</span>
-                            </div>
-                            <span className="text-sm font-medium">
-                              {new Date(milestones[activeMilestone - 1].completedDate as string).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {!milestones[activeMilestone - 1].completedDate && (
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-amber-500" />
-                              <span className="text-sm">Time Remaining:</span>
-                            </div>
-                            <span className="text-sm font-medium">
-                              {Math.ceil((new Date(milestones[activeMilestone - 1].targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
-                            </span>
-                          </div>
-                        )}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Upcoming Deadlines</CardTitle>
+                <CardDescription>Tasks and milestones due soon</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tasks.filter(t => t.status !== "completed").slice(0, 3).map((task) => (
+                    <div key={task.id} className="flex items-center gap-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                      <Clock className="h-5 w-5 text-yellow-600" />
+                      <div>
+                        <h4 className="font-medium">{task.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Due {task.dueDate}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Related Tasks</h3>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs">
-                        <Plus className="h-3.5 w-3.5 mr-1" />
-                        Add Task
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      {tasks
-                        .filter(task => task.milestone === milestones[activeMilestone - 1].title)
-                        .map(task => (
-                          <div 
-                            key={task.id} 
-                            className="p-3 border border-slate-200 dark:border-slate-700 rounded-lg flex justify-between items-center"
-                          >
-                            <div className="flex items-start gap-3">
-                              {task.status === "completed" ? (
-                                <CheckCircle className="h-5 w-5 text-emerald-500 mt-0.5" />
-                              ) : task.status === "in-progress" ? (
-                                <Circle className="h-5 w-5 text-amber-500 mt-0.5" />
-                              ) : (
-                                <Circle className="h-5 w-5 text-slate-300 dark:text-slate-600 mt-0.5" />
-                              )}
-                              <div>
-                                <div className="font-medium">{task.title}</div>
-                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                  Due: {new Date(task.dueDate).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`
-                                px-2 py-0.5 text-xs rounded-full
-                                ${task.priority === "high" 
-                                  ? "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" 
-                                  : task.priority === "medium"
-                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                                    : "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"}
-                              `}>
-                                {task.priority}
-                              </span>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <Edit3 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
-        
-        {/* KPIs Tab */}
-        <TabsContent value="kpis">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <div>
-              <h2 className="text-xl font-medium">Key Performance Indicators</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Track the metrics that matter for your startup's success</p>
-            </div>
-            <div className="flex gap-2">
-              <Button className="bg-gradient-primary">
-                <Plus className="mr-2 h-4 w-4" />
-                Add KPI
-              </Button>
-              <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {kpis.map(kpi => (
-              <Card key={kpi.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
+
+        <TabsContent value="milestones" className="space-y-8">
+          <div className="grid gap-6">
+            {milestones.map((milestone) => (
+              <Card key={milestone.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <Flag className="h-5 w-5" />
+                      {milestone.title}
+                    </CardTitle>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 p-1.5 flex-shrink-0">
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={kpiIcons[kpi.name as keyof typeof kpiIcons] || "/images/icons/default-kpi.png"}
-                            alt={kpi.name}
-                            width={40}
-                            height={40}
-                            className="h-10 w-10"
-                          />
-                        </div>
-                      </div>
-                      <CardTitle>{kpi.name}</CardTitle>
+                      <Badge className={getStatusColor(milestone.status)}>
+                        {milestone.status.replace("-", " ")}
+                      </Badge>
+                      <Badge variant="outline">
+                        {milestone.completedTasks}/{milestone.totalTasks} tasks
+                      </Badge>
                     </div>
-                    <span className={`
-                      px-2 py-0.5 text-xs rounded-full font-medium flex items-center gap-1
-                      ${kpi.status === "on-track" 
-                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" 
-                        : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"}
-                    `}>
-                      {kpi.trend.startsWith("+") ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingUp className="h-3 w-3 rotate-180" />
-                      )}
-                      {kpi.trend}
-                    </span>
+                  </div>
+                  <CardDescription>{milestone.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(milestone.completedTasks / milestone.totalTasks) * 100}%` }}
+                      />
+                    </div>
+                    
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Progress</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {Math.round((milestone.completedTasks / milestone.totalTasks) * 100)}% complete
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Target Date</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{milestone.targetDate}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Status</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {milestone.status === "completed" ? `Completed ${milestone.completedDate}` : "In Progress"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="kpis" className="space-y-8">
+          <div className="grid gap-6">
+            {kpis.map((kpi) => (
+              <Card key={kpi.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <BarChart className="h-5 w-5" />
+                      {kpi.name}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusColor(kpi.status)}>
+                        {kpi.status.replace("-", " ")}
+                      </Badge>
+                      <Badge variant="outline">{kpi.trend}</Badge>
+                    </div>
                   </div>
                   <CardDescription>{kpi.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="mb-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium">Current: {kpi.current}</span>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Target: {kpi.target}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                  <div className="space-y-4">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full ${
-                          kpi.status === "on-track" ? "bg-emerald-500" : "bg-amber-500"
-                        }`}
+                        className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${kpi.progress}%` }}
-                      ></div>
+                      />
                     </div>
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-slate-600 dark:text-slate-400">
-                    <span>{kpi.progress}% of goal</span>
-                    <span className="capitalize">Per {kpi.timeframe}</span>
+                    
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Current</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {typeof kpi.current === 'number' && kpi.current > 1000 
+                            ? `${(kpi.current / 1000).toFixed(1)}K` 
+                            : kpi.current}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Target</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {typeof kpi.target === 'number' && kpi.target > 1000 
+                            ? `${(kpi.target / 1000).toFixed(1)}K` 
+                            : kpi.target}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Progress</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{kpi.progress}%</p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium mb-2">Timeframe</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Per {kpi.timeframe}</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between pt-0">
-                  <Button variant="ghost" size="sm">
-                    <ArrowRight className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Edit3 className="h-4 w-4" />
-                  </Button>
-                </CardFooter>
               </Card>
             ))}
-            
-            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center p-8 h-[230px]">
-              <div className="text-center">
-                <Plus className="h-10 w-10 mx-auto mb-2 text-slate-400" />
-                <h3 className="text-sm font-medium mb-1">Add New KPI</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-[200px]">
-                  Track additional metrics important for your startup's growth
-                </p>
-              </div>
-            </div>
           </div>
         </TabsContent>
-        
-        {/* Tasks Tab */}
-        <TabsContent value="tasks">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <div>
-              <h2 className="text-xl font-medium">Task Management</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Organize and track tasks to hit your milestones</p>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex items-center">
-                <span className="text-sm mr-2">Filter:</span>
-                <select 
-                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm px-3 py-1.5"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Tasks</option>
-                  <option value="completed">Completed</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="not-started">Not Started</option>
-                </select>
-              </div>
-              <Button className="bg-gradient-primary">
-                <Plus className="mr-2 h-4 w-4" />
-                New Task
-              </Button>
-            </div>
-          </div>
-          
-          <Card>
-            <CardContent className="p-0">
-              <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                {filteredTasks.length > 0 ? (
-                  filteredTasks.map(task => (
-                    <div key={task.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        {task.status === "completed" ? (
-                          <CheckCircle2 className="h-5 w-5 text-emerald-500 mt-0.5 flex-shrink-0" />
-                        ) : task.status === "in-progress" ? (
-                          <Circle className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-slate-300 dark:text-slate-600 mt-0.5 flex-shrink-0" />
+
+        <TabsContent value="tasks" className="space-y-8">
+          <div className="grid gap-6">
+            {tasks.map((task) => (
+              <Card key={task.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <ListChecks className="h-5 w-5" />
+                      {task.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusColor(task.status)}>
+                        {task.status}
+                      </Badge>
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardDescription>Milestone: {task.milestone}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-4 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Assignee</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{task.assignee}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Due Date</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{task.dueDate}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Status</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {task.completedDate ? `Completed ${task.completedDate}` : task.status}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-2">Actions</h4>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                        {task.status !== "completed" && (
+                          <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-600">
+                            <CheckCircle2 className="h-3 w-3" />
+                          </Button>
                         )}
-                        <div>
-                          <div className="font-medium">{task.title}</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                            <span className="flex items-center gap-1">
-                              <Flag className="h-3 w-3" />
-                              {task.milestone}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              Due: {new Date(task.dueDate).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 ml-8 md:ml-0">
-                        <span className={`
-                          px-2 py-0.5 text-xs rounded-full
-                          ${task.priority === "high" 
-                            ? "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" 
-                            : task.priority === "medium"
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                              : "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"}
-                        `}>
-                          {task.priority}
-                        </span>
-                        <span className={`
-                          px-2 py-0.5 text-xs rounded-full
-                          ${task.status === "completed" 
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" 
-                            : task.status === "in-progress"
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                              : "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"}
-                        `}>
-                          {task.status === "not-started" ? "Not Started" : task.status === "in-progress" ? "In Progress" : "Completed"}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-rose-500">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <div className="p-8 text-center">
-                    <ListChecks className="h-12 w-12 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
-                    <h3 className="text-lg font-medium mb-2">No tasks found</h3>
-                    <p className="text-slate-500 dark:text-slate-400">
-                      {filterStatus === "all" 
-                        ? "You don't have any tasks yet. Create a new task to get started."
-                        : `You don't have any ${filterStatus.replace('-', ' ')} tasks.`}
-                    </p>
-                    <Button className="mt-4 bg-gradient-primary">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create Task
-                    </Button>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
+
+      {/* Action Cards */}
+      <div className="grid md:grid-cols-2 gap-6 mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Progress Report
+            </CardTitle>
+            <CardDescription>Download detailed progress analytics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-600">
+              <Download className="mr-2 h-4 w-4" />
+              Generate Report
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5" />
+              AI Progress Insights
+            </CardTitle>
+            <CardDescription>Get personalized recommendations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/ai">
+              <Button variant="outline" className="w-full">
+                <Lightbulb className="mr-2 h-4 w-4" />
+                Get Insights
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 

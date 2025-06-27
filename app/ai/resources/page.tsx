@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { 
   Briefcase, 
   Search, 
@@ -22,7 +24,12 @@ import {
   Info,
   BarChart,
   Plus,
-  MessageSquare
+  MessageSquare,
+  TrendingUp,
+  FileText,
+  Download,
+  Target,
+  Lightbulb
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -198,24 +205,24 @@ const mockResources = [
     level: "All Levels",
     rating: 4.6,
     reviews: 312,
-    price: "Free trial, then $29/month",
-    description: "All-in-one analytics dashboard for tracking key startup metrics and making data-driven decisions.",
+    price: "$29/month",
+    description: "Track and analyze key startup metrics with customizable dashboards and automated reporting.",
     link: "https://example.com/metricsdashboard",
   },
   {
     id: 4,
-    title: "Legal Documents for Startups",
-    provider: "Startup Legal Hub",
-    type: "Resource",
-    format: "Templates",
-    duration: "N/A",
-    topics: ["Legal", "Incorporation", "Agreements"],
-    level: "All Levels",
-    rating: 4.9,
-    reviews: 567,
-    price: "Free",
-    description: "Collection of customizable legal templates essential for startup formation, hiring, and investor agreements.",
-    link: "https://example.com/legaltemplates",
+    title: "Legal Startup Guide",
+    provider: "Startup Legal",
+    type: "Guide",
+    format: "PDF + Templates",
+    duration: "Self-paced",
+    topics: ["Legal Structure", "Contracts", "IP Protection"],
+    level: "Beginner",
+    rating: 4.5,
+    reviews: 156,
+    price: "$49",
+    description: "Essential legal knowledge and document templates for startup founders.",
+    link: "https://example.com/legalguide",
   },
   {
     id: 5,
@@ -239,26 +246,24 @@ const mockMentors = [
   {
     id: 1,
     name: "Sarah Johnson",
-    title: "Serial Entrepreneur & Investor",
-    avatar: "SJ",
-    expertise: ["SaaS", "Growth Strategy", "Fundraising"],
-    experience: "15+ years",
-    companies: ["TechStart", "CloudScale", "DataSense"],
-    availability: "2 hours/week",
-    description: "Former founder of TechStart (acquired for $50M) who has helped over 100 startups with fundraising strategy and growth.",
-    contact: "https://example.com/sarahjohnson",
+    title: "Former VP of Product at TechCorp",
+    expertise: ["Product Strategy", "User Experience", "Team Leadership"],
+    experience: "15 years",
+    companies: ["TechCorp", "StartupX", "InnovateNow"],
+    description: "Experienced product leader who has scaled products from MVP to millions of users.",
+    rating: 4.9,
+    sessions: 127,
   },
   {
     id: 2,
     name: "Michael Chen",
-    title: "Product Leader",
-    avatar: "MC",
-    expertise: ["Product Management", "UX Design", "MVP Development"],
-    experience: "12+ years",
-    companies: ["Google", "Airbnb", "Own Startup"],
-    availability: "1 hour/week",
-    description: "Product leader who built products used by millions. Specializes in helping startups find product-market fit.",
-    contact: "https://example.com/michaelchen",
+    title: "Serial Entrepreneur & Angel Investor",
+    expertise: ["Fundraising", "Business Development", "Growth Strategy"],
+    experience: "12 years",
+    companies: ["FounderCorp", "GrowthLabs", "ScaleUp"],
+    description: "Built and sold two successful startups, now helping other founders navigate growth challenges.",
+    rating: 4.8,
+    sessions: 89,
   },
   {
     id: 3,
@@ -326,688 +331,367 @@ const resourceCovers = {
 };
 
 export default function ResourcesPage() {
-  const [activeTab, setActiveTab] = useState("investors");
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // Investor filters
-  const [selectedInvestorType, setSelectedInvestorType] = useState("All Types");
-  const [selectedStage, setSelectedStage] = useState("All Stages");
-  const [selectedFocus, setSelectedFocus] = useState("All Industries");
-  
-  const investorTypes = ["All Types", "Venture Capital", "Angel Group", "Accelerator", "Impact Investor", "Strategic Investor"];
-  const stages = ["All Stages", "Pre-seed", "Seed", "Series A", "Series B", "Series C+"];
-  const industries = ["All Industries", "SaaS", "AI", "FinTech", "HealthTech", "CleanTech", "E-commerce", "BioTech", "AgTech"];
-  
-  // Grant filters
-  const [selectedGrantFocus, setSelectedGrantFocus] = useState("All Focus Areas");
-  const grantFocus = ["All Focus Areas", "Deep Tech", "CleanTech", "Social Impact", "Healthcare", "Education", "Manufacturing"];
-  
-  // Resource filters
-  const [selectedResourceType, setSelectedResourceType] = useState("All Types");
-  const [selectedLevel, setSelectedLevel] = useState("All Levels");
-  
-  const resourceTypes = ["All Types", "Course", "Workshop", "Tool", "Resource", "Template", "Guide"];
-  const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
-  
-  // Mentor filters
-  const [selectedExpertise, setSelectedExpertise] = useState("All Expertise");
-  const expertise = [
-    "All Expertise", 
-    "Fundraising", 
-    "Product Management", 
-    "Marketing", 
-    "Sales", 
-    "Technology", 
-    "Legal", 
-    "Finance", 
-    "Growth Strategy"
-  ];
-  
-  // Filter functions
-  const filterInvestors = () => {
-    return mockInvestors.filter(investor => {
-      const matchesSearch = 
-        searchQuery === "" || 
-        investor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        investor.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesType = 
-        selectedInvestorType === "All Types" || 
-        investor.type === selectedInvestorType;
-      
-      const matchesStage = 
-        selectedStage === "All Stages" || 
-        investor.stage.includes(selectedStage);
-      
-      const matchesFocus = 
-        selectedFocus === "All Industries" || 
-        investor.focus.some(f => f === selectedFocus);
-      
-      return matchesSearch && matchesType && matchesStage && matchesFocus;
-    });
-  };
-  
-  const filterGrants = () => {
-    return mockGrants.filter(grant => {
-      const matchesSearch = 
-        searchQuery === "" || 
-        grant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        grant.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        grant.organization.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesFocus = 
-        selectedGrantFocus === "All Focus Areas" || 
-        grant.focus.some(f => f.includes(selectedGrantFocus));
-      
-      return matchesSearch && matchesFocus;
-    });
-  };
-  
-  const filterResources = () => {
-    return mockResources.filter(resource => {
-      const matchesSearch = 
-        searchQuery === "" || 
-        resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        resource.provider.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesType = 
-        selectedResourceType === "All Types" || 
-        resource.type === selectedResourceType;
-      
-      const matchesLevel = 
-        selectedLevel === "All Levels" || 
-        resource.level.includes(selectedLevel);
-      
-      return matchesSearch && matchesType && matchesLevel;
-    });
-  };
-  
-  const filterMentors = () => {
-    return mockMentors.filter(mentor => {
-      const matchesSearch = 
-        searchQuery === "" || 
-        mentor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mentor.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesExpertise = 
-        selectedExpertise === "All Expertise" || 
-        mentor.expertise.some(e => e.includes(selectedExpertise));
-      
-      return matchesSearch && matchesExpertise;
-    });
-  };
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
+
   return (
-    <div className="container mx-auto py-10 px-4 md:px-6 max-w-6xl">
+    <div className="container mx-auto py-10 px-4 md:px-6 max-w-7xl">
       <div className="flex items-center gap-3 mb-10">
-        <div className="p-2 rounded-lg bg-gradient-primary">
+        <div className="p-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600">
           <Briefcase className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-clash font-bold">Resource Hub</h1>
-          <p className="text-slate-600 dark:text-slate-400">Find funding, mentors, and resources to help your startup succeed</p>
+          <h1 className="text-3xl font-clash font-bold">Startup Resources</h1>
+          <p className="text-slate-600 dark:text-slate-400">Tools, guides, and resources for successful entrepreneurship</p>
         </div>
       </div>
-      
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search for investors, grants, resources, or mentors..."
-            className="w-full pl-12 pr-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
-      
-      <Tabs defaultValue="investors" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-4">
-          <TabsTrigger value="investors" className="flex items-center gap-2">
-            <Building className="h-4 w-4" />
-            Investors
-          </TabsTrigger>
-          <TabsTrigger value="grants" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Grants & Programs
-          </TabsTrigger>
-          <TabsTrigger value="resources" className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            Resources & Courses
-          </TabsTrigger>
-          <TabsTrigger value="mentors" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Find a Mentor
-          </TabsTrigger>
-        </TabsList>
-        
-        {/* Investors Tab */}
-        <TabsContent value="investors">
-          <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="relative">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedInvestorType}
-                onChange={(e) => setSelectedInvestorType(e.target.value)}
-              >
-                {investorTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-            
-            <div className="relative">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedStage}
-                onChange={(e) => setSelectedStage(e.target.value)}
-              >
-                {stages.map((stage) => (
-                  <option key={stage} value={stage}>
-                    {stage}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-            
-            <div className="relative">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedFocus}
-                onChange={(e) => setSelectedFocus(e.target.value)}
-              >
-                {industries.map((industry) => (
-                  <option key={industry} value={industry}>
-                    {industry}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
+
+      {/* Search Bar */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8">
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search resources, courses, or funding opportunities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-          
-          <div className="space-y-6">
-            {filterInvestors().length > 0 ? (
-              filterInvestors().map((investor) => (
-                <Card key={investor.id} className="overflow-hidden">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="p-6 md:border-r border-slate-200 dark:border-slate-700 md:w-72 flex flex-col">
-                      <div className="mb-4 flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-md bg-gradient-primary text-white flex items-center justify-center text-sm font-bold overflow-hidden relative">
-                          {investorLogos[investor.name as keyof typeof investorLogos] ? (
-                            <Image 
-                              src={investorLogos[investor.name as keyof typeof investorLogos]} 
-                              alt={investor.name} 
-                              fill 
-                              className="object-cover"
-                            />
-                          ) : (
-                            investor.logo
-                          )}
-                        </div>
-                        <h3 className="text-xl font-semibold">{investor.name}</h3>
+          <Button className="bg-gradient-to-r from-amber-500 to-orange-600">
+            <Search className="h-4 w-4 mr-2" />
+            Search
+          </Button>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Resource Hub</TabsTrigger>
+          <TabsTrigger value="learning">Learning</TabsTrigger>
+          <TabsTrigger value="funding">Funding</TabsTrigger>
+          <TabsTrigger value="mentorship">Mentorship</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-8">
+          {/* Quick Access Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <BookOpen className="h-8 w-8 text-blue-600 mb-2" />
+                <CardTitle>Learning Center</CardTitle>
+                <CardDescription>Courses, guides, and educational content</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Access Learning</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <DollarSign className="h-8 w-8 text-green-600 mb-2" />
+                <CardTitle>Funding Opportunities</CardTitle>
+                <CardDescription>Grants, accelerators, and investor connections</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Find Funding</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Users className="h-8 w-8 text-purple-600 mb-2" />
+                <CardTitle>Mentor Network</CardTitle>
+                <CardDescription>Connect with experienced entrepreneurs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Find Mentors</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <FileText className="h-8 w-8 text-teal-600 mb-2" />
+                <CardTitle>Legal Templates</CardTitle>
+                <CardDescription>Contracts, agreements, and legal documents</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Download Templates</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <BarChart className="h-8 w-8 text-orange-600 mb-2" />
+                <CardTitle>Analytics Tools</CardTitle>
+                <CardDescription>Track metrics and measure progress</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Access Tools</Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <TrendingUp className="h-8 w-8 text-red-600 mb-2" />
+                <CardTitle>Growth Resources</CardTitle>
+                <CardDescription>Marketing, sales, and scaling strategies</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">Explore Growth</Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Featured Resources */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Featured Resources</CardTitle>
+              <CardDescription>Handpicked resources for startup success</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {mockResources.slice(0, 3).map((resource, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <BookOpen className="h-5 w-5" />
                       </div>
-                      
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-start gap-2">
-                          <Building className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                          <span>{investor.type}</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <MapPin className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                          <span>{investor.location}</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <DollarSign className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                          <span>Min: {investor.minimumInvestment}</span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <Users className="h-4 w-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                          <span>{investor.portfolio} Portfolio Companies</span>
-                        </div>
+                      <div>
+                        <h4 className="font-medium">{resource.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{resource.provider} • {resource.type}</p>
                       </div>
-                      
-                      <a 
-                        href={investor.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="mt-auto text-sm flex items-center gap-1 text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300"
-                      >
-                        <Globe className="h-3.5 w-3.5" />
-                        Visit Website
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
                     </div>
-                    
-                    <div className="flex-1 p-6">
-                      <h4 className="text-lg font-medium mb-2">About</h4>
-                      <p className="text-slate-600 dark:text-slate-400 mb-6">
-                        {investor.description}
-                      </p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                        <div>
-                          <h5 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Investment Stage</h5>
-                          <div className="flex flex-wrap gap-2">
-                            {investor.stage.map((s) => (
-                              <span 
-                                key={s} 
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"
-                              >
-                                {s}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h5 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Industry Focus</h5>
-                          <div className="flex flex-wrap gap-2">
-                            {investor.focus.map((f) => (
-                              <span 
-                                key={f} 
-                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300"
-                              >
-                                {f}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-6 flex gap-4">
-                        <Button className="bg-gradient-primary">
-                          Contact Investor
-                        </Button>
-                        <Button variant="outline">
-                          Save for Later
-                        </Button>
+                    <div className="text-right">
+                      <div className="font-bold">{resource.price}</div>
+                      <div className="flex items-center text-sm text-yellow-600">
+                        <Star className="h-3 w-3 mr-1 fill-current" />
+                        {resource.rating}
                       </div>
                     </div>
                   </div>
-                </Card>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Building className="h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No investors found</h3>
-                <p className="text-slate-600 dark:text-slate-400 max-w-md mb-4">
-                  Try adjusting your filters or search terms, or check back later as we're constantly adding new investors.
-                </p>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-        
-        {/* Grants Tab */}
-        <TabsContent value="grants">
-          <div className="mb-6">
-            <div className="relative w-full sm:w-64">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedGrantFocus}
-                onChange={(e) => setSelectedGrantFocus(e.target.value)}
-              >
-                {grantFocus.map((focus) => (
-                  <option key={focus} value={focus}>
-                    {focus}
-                  </option>
                 ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-          
-          <div className="space-y-6">
-            {filterGrants().length > 0 ? (
-              filterGrants().map((grant) => (
-                <Card key={grant.id} className="overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-semibold">{grant.name}</h3>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                            {grant.amount}
-                          </span>
-                        </div>
-                        <div className="text-sm text-slate-600 dark:text-slate-400">
-                          By {grant.organization}
-                        </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="learning" className="space-y-8">
+          <div className="grid gap-6">
+            {mockResources.map((resource) => (
+              <Card key={resource.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <BookOpen className="h-5 w-5" />
+                      {resource.title}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{resource.type}</Badge>
+                      <Badge variant="outline">{resource.level}</Badge>
+                      <Badge variant="outline" className="text-green-600 border-green-600">
+                        {resource.price}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardDescription>{resource.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-3">Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div>Provider: {resource.provider}</div>
+                        <div>Format: {resource.format}</div>
+                        <div>Duration: {resource.duration}</div>
                       </div>
-                      
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-3">Topics Covered</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {resource.topics.map((topic, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-3">Rating</h4>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-red-500" />
-                        <span className="text-sm font-medium">
-                          Application Deadline: {new Date(grant.deadline).toLocaleDateString()}
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="ml-1 font-medium">{resource.rating}</span>
+                        </div>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          ({resource.reviews} reviews)
                         </span>
                       </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {grant.focus.map((f) => (
-                        <span 
-                          key={f} 
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300"
-                        >
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <div className="mb-6">
-                      <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Eligibility</h4>
-                      <p className="text-sm text-slate-700 dark:text-slate-300">{grant.eligibility}</p>
-                    </div>
-                    
-                    <p className="text-slate-600 dark:text-slate-400 mb-6">
-                      {grant.description}
-                    </p>
-                    
-                    <div className="flex gap-4">
-                      <a 
-                        href={grant.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-primary hover:opacity-90 focus:outline-none"
-                      >
-                        Apply Now
-                        <ExternalLink className="ml-2 h-4 w-4" />
-                      </a>
-                      <Button variant="outline">
-                        Save for Later
+                      <Button className="w-full mt-3" size="sm">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Access Resource
                       </Button>
                     </div>
                   </div>
-                </Card>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <DollarSign className="h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No grants or programs found</h3>
-                <p className="text-slate-600 dark:text-slate-400 max-w-md mb-4">
-                  Try adjusting your search terms or filters, or check back later as we regularly update our database of funding opportunities.
-                </p>
-              </div>
-            )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
-        
-        {/* Resources Tab */}
-        <TabsContent value="resources">
-          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="relative">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedResourceType}
-                onChange={(e) => setSelectedResourceType(e.target.value)}
-              >
-                {resourceTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-            
-            <div className="relative">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedLevel}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-              >
-                {levels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filterResources().length > 0 ? (
-              filterResources().map((resource) => (
-                <Card key={resource.id} className="flex flex-col h-full">
-                  <CardHeader>
-                    <div className="relative w-full h-32 mb-4 -mt-2 -mx-2 overflow-hidden rounded-t-lg">
-                      <Image 
-                        src={resourceCovers[resource.title as keyof typeof resourceCovers] || "/images/resources/default-resource.jpg"} 
-                        alt={resource.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <div className="absolute bottom-2 left-2 right-2 text-white">
-                        <CardTitle className="text-lg mb-1 drop-shadow-sm">{resource.title}</CardTitle>
-                        <CardDescription className="text-slate-200">By {resource.provider}</CardDescription>
+
+        <TabsContent value="funding" className="space-y-8">
+          <div className="grid gap-6">
+            {mockGrants.map((grant) => (
+              <Card key={grant.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <DollarSign className="h-5 w-5" />
+                      {grant.name}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{grant.type}</Badge>
+                      <Badge variant="outline" className="text-green-600 border-green-600">
+                        {grant.amount}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardDescription>{grant.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-3">Organization</h4>
+                      <div className="space-y-2 text-sm">
+                        <div>{grant.organization}</div>
+                        <div>Deadline: {grant.deadline}</div>
                       </div>
                     </div>
-                    <div className="flex items-start justify-end">
-                      <span className={`
-                        px-2.5 py-0.5 rounded-full text-xs font-medium 
-                        ${resource.price === "Free" 
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" 
-                          : "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"
-                        }
-                      `}>
-                        {resource.price}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300">
-                        {resource.type}
-                      </span>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
-                        {resource.format}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-500">
-                        <Star className="fill-amber-500 text-amber-500 h-3.5 w-3.5" />
-                        {resource.rating}
-                      </span>
-                    </div>
                     
-                    <div className="mb-3">
-                      <h4 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Topics Covered</h4>
-                      <div className="flex flex-wrap gap-1.5">
-                        {resource.topics.map((topic) => (
-                          <span 
-                            key={topic} 
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                          >
-                            {topic}
-                          </span>
+                    <div>
+                      <h4 className="font-semibold mb-3">Focus Areas</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {grant.focus.map((area, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {area}
+                          </Badge>
                         ))}
                       </div>
                     </div>
                     
-                    <div className="mb-3 flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="h-3.5 w-3.5 text-slate-500" />
-                        <span className="text-xs">{resource.level}</span>
-                      </div>
-                      {resource.duration && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5 text-slate-500" />
-                          <span className="text-xs">{resource.duration}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <MessageSquare className="h-3.5 w-3.5 text-slate-500" />
-                        <span className="text-xs">{resource.reviews} reviews</span>
-                      </div>
+                    <div>
+                      <h4 className="font-semibold mb-3">Eligibility</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        {grant.eligibility}
+                      </p>
+                      <Button className="w-full" size="sm">
+                        <Target className="mr-2 h-4 w-4" />
+                        Apply Now
+                      </Button>
                     </div>
-                    
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                      {resource.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <a 
-                      href={resource.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-primary hover:opacity-90 focus:outline-none"
-                    >
-                      Access Resource
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                  </CardFooter>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-3 flex flex-col items-center justify-center py-20 text-center">
-                <BookOpen className="h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No resources found</h3>
-                <p className="text-slate-600 dark:text-slate-400 max-w-md mb-4">
-                  Try adjusting your filters or search terms to find the resources you're looking for.
-                </p>
-              </div>
-            )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
-        
-        {/* Mentors Tab */}
-        <TabsContent value="mentors">
-          <div className="mb-6">
-            <div className="relative w-full sm:w-64">
-              <select
-                className="appearance-none w-full pl-4 pr-10 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                value={selectedExpertise}
-                onChange={(e) => setSelectedExpertise(e.target.value)}
-              >
-                {expertise.map((exp) => (
-                  <option key={exp} value={exp}>
-                    {exp}
-                  </option>
-                ))}
-              </select>
-              <Filter className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filterMentors().length > 0 ? (
-              filterMentors().map((mentor) => (
-                <Card key={mentor.id} className="overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 relative">
-                        <div className="w-16 h-16 rounded-lg bg-gradient-primary text-white flex items-center justify-center text-xl font-bold flex-shrink-0 overflow-hidden relative">
-                          {mentorImages[mentor.name as keyof typeof mentorImages] ? (
-                            <Image 
-                              src={mentorImages[mentor.name as keyof typeof mentorImages]}
-                              alt={mentor.name}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            mentor.avatar
-                          )}
-                        </div>
+
+        <TabsContent value="mentorship" className="space-y-8">
+          <div className="grid gap-6">
+            {mockMentors.map((mentor) => (
+              <Card key={mentor.id} className="overflow-hidden">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <Users className="h-5 w-5" />
+                      {mentor.name}
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                        <span className="ml-1 font-medium">{mentor.rating}</span>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{mentor.name}</h3>
-                        <p className="text-slate-600 dark:text-slate-400">{mentor.title}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Award className="h-4 w-4 text-amber-500" />
-                          <span className="text-sm font-medium">{mentor.experience} experience</span>
-                        </div>
+                      <Badge variant="outline">{mentor.sessions} sessions</Badge>
+                    </div>
+                  </div>
+                  <CardDescription>{mentor.title}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-3">Experience</h4>
+                      <div className="space-y-2 text-sm">
+                        <div>{mentor.experience} experience</div>
+                        <div>Companies: {mentor.companies.join(", ")}</div>
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Areas of Expertise</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {mentor.expertise.map((exp) => (
-                          <span 
-                            key={exp} 
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300"
-                          >
-                            {exp}
-                          </span>
+                    <div>
+                      <h4 className="font-semibold mb-3">Expertise</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {mentor.expertise.map((skill, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {skill}
+                          </Badge>
                         ))}
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Previous Companies</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {mentor.companies.map((company) => (
-                          <span 
-                            key={company} 
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300"
-                          >
-                            {company}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="mb-6">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 mb-4">
-                        <Calendar className="h-4 w-4 text-slate-500" />
-                        <span>Available for {mentor.availability}</span>
-                      </div>
-                      <p className="text-slate-600 dark:text-slate-400">
+                    <div>
+                      <h4 className="font-semibold mb-3">About</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                         {mentor.description}
                       </p>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <a 
-                        href={mentor.contact} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-primary hover:opacity-90 focus:outline-none"
-                      >
-                        Request Mentorship
-                      </a>
-                      <Button variant="outline">
-                        <Heart className="mr-2 h-4 w-4" />
-                        Save Profile
+                      <Button className="w-full" size="sm">
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Connect
                       </Button>
                     </div>
                   </div>
-                </Card>
-              ))
-            ) : (
-              <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center">
-                <Users className="h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No mentors found</h3>
-                <p className="text-slate-600 dark:text-slate-400 max-w-md mb-4">
-                  Try adjusting your search terms or expertise filter to find a mentor that matches your needs.
-                </p>
-              </div>
-            )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
       </Tabs>
-      
-      <div className="mt-10 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg p-6">
-        <div className="flex items-start gap-3">
-          <Info className="text-sky-600 dark:text-sky-400 h-5 w-5 mt-0.5 flex-shrink-0" />
-          <div>
-            <h3 className="text-lg font-medium mb-2">Need Help Finding Resources?</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
-              Our AI assistant can help you identify the most relevant funding sources, resources, and mentors based on your specific startup needs.
-            </p>
-            <Button className="bg-gradient-primary">
-              <BarChart className="mr-2 h-4 w-4" />
-              Get Personalized Recommendations
+
+      {/* Action Cards */}
+      <div className="grid md:grid-cols-2 gap-6 mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Resource Library
+            </CardTitle>
+            <CardDescription>Download our complete startup resource pack</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600">
+              <Download className="mr-2 h-4 w-4" />
+              Download Resource Pack
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="h-5 w-5" />
+              Personalized Recommendations
+            </CardTitle>
+            <CardDescription>Get AI-powered resource recommendations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/ai">
+              <Button variant="outline" className="w-full">
+                <Lightbulb className="mr-2 h-4 w-4" />
+                Get Recommendations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
