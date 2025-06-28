@@ -1,4 +1,7 @@
+
 flask
+gunicorn
 flask-cors
 flask-sqlalchemy
-gunicorn
+python-dotenv
+# any other packages you use
