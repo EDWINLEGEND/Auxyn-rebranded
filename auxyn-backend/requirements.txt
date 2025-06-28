@@ -3,4 +3,4 @@ gunicorn
 flask-cors
 flask-sqlalchemy
 python-dotenv
-# any other packages you use
+Flask-Migrate==4.0.5
