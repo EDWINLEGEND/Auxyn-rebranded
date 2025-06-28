@@ -23,7 +23,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app)
+    CORS(app, origins=['https://auxyn-rebranded1234.vercel.app/'])
 
     # Import models
     from app.models import user, startup, rating, follow
