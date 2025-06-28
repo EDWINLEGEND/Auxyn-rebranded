@@ -1,85 +1,184 @@
-# Welcome to your Lovable project
+# Auxyn - AI-Powered Startup Platform
 
-## Project info
+Auxyn is a modern platform that connects startups with investors, powered by AI-driven insights and smart matching algorithms. The platform provides comprehensive tools for startup development, investor matchmaking, and market research.
 
-**URL**: https://lovable.dev/projects/fceceef6-5c35-4562-9c3b-5191b3488762
+## 🌟 Features
 
-## How can I edit this code?
+### For Startups
+- **AI Development Assistant**: Get guidance on your startup journey
+- **Pitch Deck Builder**: Create compelling pitch decks
+- **Progress Tracking**: Monitor your startup's growth
+- **Market Research Tools**: Access comprehensive market analysis
+- **Resource Library**: Access startup development resources
 
-There are several ways of editing your application.
+### For Investors
+- **Smart Matching**: Find startups that match your investment criteria
+- **Analytics Dashboard**: Track investment opportunities
+- **Returns Analysis**: Monitor portfolio performance
+- **Market Research**: Access industry insights
+- **Startup Progress Tracking**: Monitor invested startups
 
-**Use Lovable**
+## 🚀 Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fceceef6-5c35-4562-9c3b-5191b3488762) and start prompting.
+### Frontend
+- **Framework**: Next.js 14
+- **UI Components**: Radix UI + Tailwind CSS
+- **State Management**: React Query
+- **AI Integration**: Google's Gemini API
+- **Styling**: TailwindCSS + CSS Modules
+- **3D Visualization**: Three.js
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend
+- **Framework**: Flask
+- **Database**: SQLAlchemy
+- **Authentication**: JWT
+- **API**: RESTful
+- **AI Services**: Gemini, ChatGPT, Botpress
 
-**Use your preferred IDE**
+## 📦 Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (v18 or higher)
+- Python 3.8+
+- PostgreSQL (for production)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Installation
 
-Follow these steps:
+### Frontend Setup
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/Auxyn-rebranded.git
+   cd Auxyn-rebranded
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Create a .env file in the root directory:
+   ```env
+   GEMINI_API_KEY=your-gemini-api-key
+   NEXT_PUBLIC_API_URL=http://localhost:5000
+   NODE_ENV=development
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Backend Setup
+
+1. Navigate to the backend directory:
+   ```bash
+   cd auxyn-backend
+   ```
+
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Create a .env file in the backend directory:
+   ```env
+   SECRET_KEY=your-secret-key
+   JWT_SECRET_KEY=your-jwt-secret
+   DATABASE_URL=sqlite:///instance/app.db
+   FLASK_ENV=development
+   FLASK_DEBUG=True
+   ```
+
+5. Initialize the database:
+   ```bash
+   flask db upgrade
+   ```
+
+6. Run the backend server:
+   ```bash
+   python run.py
+   ```
+
+## 🌐 Project Structure
+
+```
+Auxyn-rebranded/
+├── app/                    # Next.js frontend application
+│   ├── ai/                # AI-related pages
+│   ├── api/               # API routes
+│   ├── components/        # Reusable components
+│   └── lib/              # Utility functions and services
+├── auxyn-backend/         # Flask backend application
+│   ├── app/              # Main application code
+│   │   ├── models/       # Database models
+│   │   ├── routes/       # API endpoints
+│   │   └── services/     # Business logic
+│   └── migrations/       # Database migrations
+└── public/               # Static assets
 ```
 
-**Edit a file directly in GitHub**
+## 🔑 API Documentation
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Authentication Endpoints
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/verify-token` - Verify JWT token
 
-**Use GitHub Codespaces**
+### Profile Endpoints
+- `POST /api/users/startup` - Create startup profile
+- `POST /api/users/investor` - Create investor profile
+- `GET /api/users/preferences` - Get user preferences
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Matching Endpoints
+- `POST /api/matches/generate` - Generate new matches
+- `GET /api/matches/{user_id}` - Get user matches
+- `GET /api/matches/{match_id}/insights` - Get match insights
 
-## What technologies are used for this project?
+## 🚀 Deployment
 
-This project is built with Next.js and modern web technologies:
+### Frontend Deployment
+```bash
+# Build the application
+npm run build
 
-- Next.js 14
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-- Prisma (planned for database)
-- PostgreSQL (planned for database)
+# Deploy to Vercel
+npm run deploy:vercel
 
-## Project Structure
-
-```
-├── app/                    # Next.js 13+ app directory
-├── components/            # Reusable React components
-├── lib/                   # Utility libraries and services
-├── public/                # Static assets
-│   └── images/           # Image assets
-│       └── debug-screenshots/  # Development screenshots
-├── scripts/              # Development and maintenance scripts
-├── docs/                 # Project documentation
-└── ...config files
+# Deploy to Netlify
+npm run deploy:netlify
 ```
 
-## How can I deploy this project?
+### Backend Deployment
+```bash
+# Install production dependencies
+pip install -r requirements.txt
 
-Simply open [Lovable](https://lovable.dev/projects/fceceef6-5c35-4562-9c3b-5191b3488762) and click on Share -> Publish.
+# Run with gunicorn
+gunicorn run:app
+```
 
-## I want to use a custom domain - is that possible?
+## 🤝 Contributing
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/)
+- [Flask](https://flask.palletsprojects.com/)
+- [Radix UI](https://www.radix-ui.com/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [Google Gemini](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini)
