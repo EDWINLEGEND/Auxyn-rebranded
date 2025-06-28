@@ -13,8 +13,11 @@ import {
   User,
   ThumbsUp,
   ThumbsDown,
-  MessageCircle
+  MessageCircle,
+  Loader2
 } from "lucide-react";
+import { ratingAPI, authAPI, handleApiError, type StartupRating, type RatingsResponse } from "@/lib/api";
+import { toast } from "@/components/ui/use-toast";
 
 interface Review {
   id: number;
@@ -31,7 +34,7 @@ interface StartupRatingModalProps {
   startup: any;
   isOpen: boolean;
   onClose: () => void;
-  onSubmitRating: (rating: number, review: string) => void;
+  onSubmitRating?: (rating: number, review: string) => void;
   defaultTab?: "rate" | "reviews";
 }
 
@@ -46,71 +49,107 @@ export const StartupRatingModal: React.FC<StartupRatingModalProps> = ({
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [review, setReview] = useState("");
-  const [investorName, setInvestorName] = useState("");
-  const [investorTitle, setInvestorTitle] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [reviews, setReviews] = useState<StartupRating[]>([]);
+  const [ratingsData, setRatingsData] = useState<RatingsResponse | null>(null);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // Reset tab when modal opens
   useEffect(() => {
     if (isOpen) {
       setActiveTab(defaultTab);
+      loadCurrentUser();
+      if (startup?.id) {
+        loadReviews();
+      }
     }
-  }, [isOpen, defaultTab]);
+  }, [isOpen, defaultTab, startup?.id]);
 
-  // Mock reviews data - in a real app, this would come from a database
-  const mockReviews: Review[] = [
-    {
-      id: 1,
-      investorName: "Sarah Johnson",
-      investorTitle: "Partner at TechVentures",
-      rating: 5,
-      review: "Exceptional team with a clear vision. Their AI technology is revolutionary and the market potential is enormous. The founders are experienced and have a solid execution track record.",
-      date: "2 days ago",
-      helpful: 12,
-      verified: true
-    },
-    {
-      id: 2,
-      investorName: "Michael Chen",
-      investorTitle: "Angel Investor",
-      rating: 4,
-      review: "Strong product-market fit and impressive early traction. The revenue growth is outstanding, though I'd like to see more focus on customer retention metrics.",
-      date: "1 week ago",
-      helpful: 8,
-      verified: true
-    },
-    {
-      id: 3,
-      investorName: "Emily Rodriguez",
-      investorTitle: "Managing Director, Growth Capital",
-      rating: 5,
-      review: "This startup stands out in a crowded market. Their technology differentiation is clear, and they've assembled an incredible advisory board. Highly recommend for Series A investors.",
-      date: "2 weeks ago",
-      helpful: 15,
-      verified: true
-    },
-    {
-      id: 4,
-      investorName: "David Kim",
-      investorTitle: "Venture Partner",
-      rating: 3,
-      review: "Good team and decent traction, but the competitive landscape is challenging. The business model needs refinement and the go-to-market strategy could be stronger.",
-      date: "3 weeks ago",
-      helpful: 5,
-      verified: false
+  const loadCurrentUser = () => {
+    const user = authAPI.getCurrentUser();
+    setCurrentUser(user);
+  };
+
+  const loadReviews = async () => {
+    if (!startup?.id) return;
+    
+    try {
+      setLoadingReviews(true);
+      const data = await ratingAPI.getStartupRatings(startup.id);
+      setRatingsData(data);
+      setReviews(data.ratings);
+    } catch (error) {
+      console.error('Failed to load reviews:', error);
+    } finally {
+      setLoadingReviews(false);
     }
-  ];
+  };
+
+
 
   if (!isOpen || !startup) return null;
 
-  const handleSubmit = () => {
-    if (rating > 0 && review.trim()) {
-      onSubmitRating(rating, review);
+  const handleSubmit = async () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to rate startups.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentUser.user_type !== 'investor') {
+      toast({
+        title: "Investor Only",
+        description: "Only investors can rate startups.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (rating === 0 || !review.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both a rating and review.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await ratingAPI.rateStartup(startup.id, rating, review);
+      
+      // Call optional callback
+      if (onSubmitRating) {
+        onSubmitRating(rating, review);
+      }
+
+      toast({
+        title: "Rating Submitted",
+        description: "Thank you for your review!",
+      });
+
       // Reset form
       setRating(0);
       setReview("");
-      setInvestorName("");
-      setInvestorTitle("");
-      onClose();
+      
+      // Reload reviews to show the new one
+      await loadReviews();
+      
+      // Switch to reviews tab to show the submitted review
+      setActiveTab("reviews");
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -159,27 +198,13 @@ export const StartupRatingModal: React.FC<StartupRatingModalProps> = ({
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="investorName">Your Name</Label>
-          <Input
-            id="investorName"
-            value={investorName}
-            onChange={(e) => setInvestorName(e.target.value)}
-            placeholder="Enter your name"
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="investorTitle">Your Title/Company</Label>
-          <Input
-            id="investorTitle"
-            value={investorTitle}
-            onChange={(e) => setInvestorTitle(e.target.value)}
-            placeholder="e.g., Partner at ABC Ventures"
-            className="mt-1"
-          />
-        </div>
+        {currentUser && (
+          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Submitting as: <span className="font-medium">{currentUser.email}</span>
+            </p>
+          </div>
+        )}
 
         <div>
           <Label htmlFor="review">Your Review</Label>
@@ -196,11 +221,20 @@ export const StartupRatingModal: React.FC<StartupRatingModalProps> = ({
 
         <Button 
           onClick={handleSubmit}
-          disabled={rating === 0 || !review.trim() || !investorName.trim()}
+          disabled={rating === 0 || !review.trim() || loading || !currentUser}
           className="w-full bg-gradient-to-r from-blue-500 to-purple-600"
         >
-          <Send className="h-4 w-4 mr-2" />
-          Submit Rating & Review
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4 mr-2" />
+              Submit Rating & Review
+            </>
+          )}
         </Button>
       </div>
     </div>
@@ -211,57 +245,66 @@ export const StartupRatingModal: React.FC<StartupRatingModalProps> = ({
       <div className="text-center">
         <h3 className="text-xl font-semibold mb-2">Investor Reviews</h3>
         <div className="flex items-center justify-center gap-4 mb-6">
-          {renderStars(startup.rating, false, "h-5 w-5")}
-          <span className="text-lg font-medium">{startup.rating.toFixed(1)}</span>
-          <span className="text-gray-600">({startup.totalRatings} reviews)</span>
+          {renderStars(ratingsData?.average_rating || startup.rating, false, "h-5 w-5")}
+          <span className="text-lg font-medium">{(ratingsData?.average_rating || startup.rating).toFixed(1)}</span>
+          <span className="text-gray-600">({ratingsData?.total_ratings || startup.totalRatings || 0} reviews)</span>
         </div>
       </div>
 
-      <div className="space-y-4 max-h-[400px] overflow-y-auto">
-        {mockReviews.map((reviewItem) => (
-          <Card key={reviewItem.id} className="p-4">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                {reviewItem.investorName.charAt(0)}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-semibold">{reviewItem.investorName}</span>
-                  {reviewItem.verified && (
+      {loadingReviews ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="ml-2">Loading reviews...</span>
+        </div>
+      ) : (
+        <div className="space-y-4 max-h-[400px] overflow-y-auto">
+          {reviews.length > 0 ? reviews.map((reviewItem) => (
+            <Card key={reviewItem.id} className="p-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                  U
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-semibold">User #{reviewItem.user_id}</span>
                     <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                       Verified Investor
                     </span>
-                  )}
-                  <span className="text-sm text-gray-500">• {reviewItem.date}</span>
-                </div>
-                
-                <p className="text-sm text-gray-600 mb-2">{reviewItem.investorTitle}</p>
-                
-                <div className="flex items-center gap-2 mb-3">
-                  {renderStars(reviewItem.rating, false, "h-4 w-4")}
-                </div>
-                
-                <p className="text-gray-700 dark:text-gray-300 mb-3">{reviewItem.review}</p>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <button className="flex items-center gap-1 hover:text-green-600">
-                    <ThumbsUp className="h-4 w-4" />
-                    Helpful ({reviewItem.helpful})
-                  </button>
-                  <button className="flex items-center gap-1 hover:text-red-600">
-                    <ThumbsDown className="h-4 w-4" />
-                  </button>
-                  <button className="flex items-center gap-1 hover:text-blue-600">
-                    <MessageCircle className="h-4 w-4" />
-                    Reply
-                  </button>
+                    <span className="text-sm text-gray-500">
+                      • {reviewItem.created_at ? new Date(reviewItem.created_at).toLocaleDateString() : 'Recently'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    {renderStars(reviewItem.rating, false, "h-4 w-4")}
+                  </div>
+                  
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">{reviewItem.review_text}</p>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <button className="flex items-center gap-1 hover:text-green-600">
+                      <ThumbsUp className="h-4 w-4" />
+                      Helpful
+                    </button>
+                    <button className="flex items-center gap-1 hover:text-red-600">
+                      <ThumbsDown className="h-4 w-4" />
+                    </button>
+                    <button className="flex items-center gap-1 hover:text-blue-600">
+                      <MessageCircle className="h-4 w-4" />
+                      Reply
+                    </button>
+                  </div>
                 </div>
               </div>
+            </Card>
+          )) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No reviews yet. Be the first to review this startup!</p>
             </div>
-          </Card>
-        ))}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -287,7 +330,7 @@ export const StartupRatingModal: React.FC<StartupRatingModalProps> = ({
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="rate">Rate Startup</TabsTrigger>
-              <TabsTrigger value="reviews">View Reviews ({mockReviews.length})</TabsTrigger>
+              <TabsTrigger value="reviews">View Reviews ({ratingsData?.total_ratings || 0})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="rate" className="mt-6">

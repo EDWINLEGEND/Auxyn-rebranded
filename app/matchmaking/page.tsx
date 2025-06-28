@@ -246,7 +246,6 @@ export default function SmartMatchmakingPage() {
               <CardContent>
                 {userType === "investor" ? (
                   <StartupDiscoveryGrid
-                    startups={[]}
                     onViewStartup={handleViewDetails}
                     onExpressInterest={handleExpressInterest}
                     onBookmarkStartup={handleSaveMatch}

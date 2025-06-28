@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,62 +27,58 @@ import {
   ChevronDown,
   ChevronUp,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Loader2,
+  RefreshCw,
+  UserPlus,
+  UserMinus,
+  X
 } from "lucide-react";
+import { startupAPI, followAPI, authAPI, handleApiError, type Startup, type User } from "@/lib/api";
+import { toast } from "@/components/ui/use-toast";
 // import { motion, AnimatePresence } from "framer-motion";
 
 interface StartupData {
   id: number;
   name: string;
   description: string;
-  logo?: string;
-  industry: string[];
-  stage: string;
-  location: string;
-  foundedYear: number;
-  
-  // Funding info
-  fundingNeeded: string;
-  equityOffered: string;
-  currentValuation: string;
-  previousRounds?: string[];
-  
-  // Team & traction
-  teamSize: number;
-  revenue: string;
-  growth: string;
-  customers: number;
-  
-  // Additional info
-  website?: string;
-  businessModel: string;
-  targetMarket: string;
-  
-  // Metadata
-  verified: boolean;
-  featured: boolean;
-  trending: boolean;
-  lastActive: string;
-  responseRate: number;
-  
-  // Metrics
-  views: number;
-  interests: number;
-  bookmarks: number;
-  
-  // Rating
+  category: string;
   rating: number;
-  totalRatings: number;
+  followers: number;
+  // Enhanced UI fields (will be shown as defaults if not provided by backend)
+  logo?: string;
+  industry?: string[];
+  stage?: string;
+  location?: string;
+  foundedYear?: number;
+  fundingNeeded?: string;
+  equityOffered?: string;
+  currentValuation?: string;
+  previousRounds?: string[];
+  teamSize?: number;
+  revenue?: string;
+  growth?: string;
+  customers?: number;
+  website?: string;
+  businessModel?: string;
+  targetMarket?: string;
+  verified?: boolean;
+  featured?: boolean;
+  trending?: boolean;
+  lastActive?: string;
+  responseRate?: number;
+  views?: number;
+  interests?: number;
+  bookmarks?: number;
+  totalRatings?: number;
+  following?: boolean;
 }
 
 interface StartupDiscoveryGridProps {
-  startups: StartupData[];
   onViewStartup: (startupId: number) => void;
   onExpressInterest: (startupId: number) => void;
   onBookmarkStartup: (startupId: number) => void;
   onRateStartup?: (startupId: number) => void;
-  savedStartups?: number[];
-  interestedStartups?: number[];
 }
 
 const mockStartups: StartupData[] = [
@@ -90,6 +86,8 @@ const mockStartups: StartupData[] = [
     id: 1,
     name: "TechFlow Solutions",
     description: "AI-powered workflow automation platform that helps enterprise clients reduce operational costs by 40% while improving efficiency across departments.",
+    category: "SaaS",
+    followers: 45,
     industry: ["SaaS", "AI/ML", "Enterprise"],
     stage: "Series A",
     location: "San Francisco, CA",
@@ -120,6 +118,8 @@ const mockStartups: StartupData[] = [
     id: 2,
     name: "GreenEnergy Innovations",
     description: "Revolutionary solar panel technology with 40% higher efficiency than traditional panels, making renewable energy more accessible and cost-effective.",
+    category: "CleanTech",
+    followers: 28,
     industry: ["CleanTech", "Hardware", "Energy"],
     stage: "Seed",
     location: "Austin, TX",
@@ -150,6 +150,8 @@ const mockStartups: StartupData[] = [
     id: 3,
     name: "HealthAI Diagnostics",
     description: "AI-powered medical diagnostic platform that improves diagnostic accuracy by 40% and reduces time to diagnosis from days to minutes.",
+    category: "HealthTech",
+    followers: 67,
     industry: ["HealthTech", "AI/ML", "Medical"],
     stage: "Series A",
     location: "Boston, MA",
@@ -183,14 +185,17 @@ const stages = ["All", "Pre-Seed", "Seed", "Series A", "Series B", "Series C+", 
 const locations = ["All", "San Francisco, CA", "New York, NY", "Boston, MA", "Austin, TX", "Seattle, WA", "Los Angeles, CA"];
 
 export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
-  startups = mockStartups,
   onViewStartup,
   onExpressInterest,
   onBookmarkStartup,
   onRateStartup,
-  savedStartups = [],
-  interestedStartups = []
 }) => {
+  const [startups, setStartups] = useState<StartupData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [followingStartups, setFollowingStartups] = useState<Set<number>>(new Set());
+  const [loadingActions, setLoadingActions] = useState<Set<number>>(new Set());
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
   const [selectedStage, setSelectedStage] = useState("All");
@@ -198,16 +203,156 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<"trending" | "recent" | "funding" | "traction">("trending");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  // Load startups from backend
+  useEffect(() => {
+    loadStartups();
+    loadCurrentUser();
+  }, []);
+
+  const loadCurrentUser = async () => {
+    try {
+      if (authAPI.isAuthenticated()) {
+        const userData = authAPI.getCurrentUser();
+        setCurrentUser(userData);
+      }
+    } catch (error) {
+      console.error('Failed to load current user:', error);
+    }
+  };
+
+  const loadStartups = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const startupsData = await startupAPI.getAll();
+      
+      // Transform backend data to match UI interface
+      const transformedStartups: StartupData[] = startupsData.map(startup => ({
+        ...startup,
+        industry: [startup.category], // Convert category to industry array
+        stage: "Seed", // Default stage
+        location: "San Francisco, CA", // Default location
+        foundedYear: 2022, // Default year
+        fundingNeeded: "$1M", // Default funding
+        equityOffered: "10%", // Default equity
+        currentValuation: "$5M", // Default valuation
+        teamSize: 8, // Default team size
+        revenue: "Pre-revenue", // Default revenue
+        growth: "N/A", // Default growth
+        customers: 0, // Default customers
+        businessModel: "SaaS", // Default business model
+        targetMarket: "Enterprise", // Default target market
+        verified: true, // Default verified
+        featured: false, // Default featured
+        trending: Math.random() > 0.5, // Random trending
+        lastActive: "2 hours ago", // Default last active
+        responseRate: Math.floor(Math.random() * 40) + 60, // Random response rate 60-100%
+        views: Math.floor(Math.random() * 1000) + 100, // Random views 100-1100
+        interests: Math.floor(Math.random() * 50) + 10, // Random interests 10-60
+        bookmarks: Math.floor(Math.random() * 30) + 5, // Random bookmarks 5-35
+        totalRatings: startup.rating ? Math.floor(Math.random() * 200) + 50 : 0, // Random total ratings if rated
+        following: false // Will be updated based on user's follow status
+      }));
+
+      setStartups(transformedStartups);
+    } catch (error) {
+      setError(handleApiError(error));
+      console.error('Failed to load startups:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFollow = async (startupId: number) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to follow startups.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentUser.user_type !== 'investor') {
+      toast({
+        title: "Investor Only",
+        description: "Only investors can follow startups.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoadingActions(prev => new Set(prev).add(startupId));
+    
+    try {
+      const isCurrentlyFollowing = followingStartups.has(startupId);
+      
+      if (isCurrentlyFollowing) {
+        await followAPI.unfollowStartup(startupId);
+        setFollowingStartups(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(startupId);
+          return newSet;
+        });
+        toast({
+          title: "Unfollowed",
+          description: "You have unfollowed this startup.",
+        });
+      } else {
+        await followAPI.followStartup(startupId);
+        setFollowingStartups(prev => new Set(prev).add(startupId));
+        toast({
+          title: "Following",
+          description: "You are now following this startup.",
+        });
+      }
+
+      // Update follower count in startups list
+      setStartups(prev => prev.map(startup => 
+        startup.id === startupId 
+          ? { 
+              ...startup, 
+              followers: isCurrentlyFollowing ? startup.followers - 1 : startup.followers + 1,
+              following: !isCurrentlyFollowing
+            }
+          : startup
+      ));
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: handleApiError(error),
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingActions(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(startupId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleRefresh = () => {
+    loadStartups();
+  };
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const filteredStartups = startups.filter(startup => {
     const matchesSearch = startup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          startup.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         startup.industry.some(ind => ind.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (startup.industry && startup.industry.some(ind => ind.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+                         startup.category.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesIndustry = selectedIndustry === "All" || startup.industry.includes(selectedIndustry);
-    const matchesStage = selectedStage === "All" || startup.stage === selectedStage;
-    const matchesLocation = selectedLocation === "All" || startup.location === selectedLocation;
+    const matchesIndustry = selectedIndustry === "All" || 
+                           (startup.industry && startup.industry.includes(selectedIndustry)) ||
+                           startup.category === selectedIndustry;
+    const matchesStage = selectedStage === "All" || (startup.stage && startup.stage === selectedStage);
+    const matchesLocation = selectedLocation === "All" || (startup.location && startup.location === selectedLocation);
 
     return matchesSearch && matchesIndustry && matchesStage && matchesLocation;
   });
@@ -217,22 +362,18 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
     
     switch (sortBy) {
       case "trending":
-        comparison = (b.views + b.interests * 10) - (a.views + a.interests * 10);
+        comparison = ((b.views || 0) + (b.interests || 0) * 10) - ((a.views || 0) + (a.interests || 0) * 10);
         break;
       case "recent":
-        const aHours = a.lastActive.includes("hour") ? parseInt(a.lastActive) : parseInt(a.lastActive) * 24;
-        const bHours = b.lastActive.includes("hour") ? parseInt(b.lastActive) : parseInt(b.lastActive) * 24;
-        comparison = aHours - bHours;
+        // Use rating as fallback for recent activity since lastActive is just a default string
+        comparison = b.rating - a.rating;
         break;
       case "funding":
-        const aFunding = parseFloat(a.fundingNeeded.replace(/[$MK]/g, '')) * (a.fundingNeeded.includes('M') ? 1000000 : 1000);
-        const bFunding = parseFloat(b.fundingNeeded.replace(/[$MK]/g, '')) * (b.fundingNeeded.includes('M') ? 1000000 : 1000);
-        comparison = aFunding - bFunding;
+        // Use follower count as fallback for funding amount
+        comparison = b.followers - a.followers;
         break;
       case "traction":
-        const aTraction = a.revenue === "Pre-revenue" ? 0 : parseFloat(a.revenue.replace(/[$MK]/g, '')) * (a.revenue.includes('M') ? 1000000 : 1000);
-        const bTraction = b.revenue === "Pre-revenue" ? 0 : parseFloat(b.revenue.replace(/[$MK]/g, '')) * (b.revenue.includes('M') ? 1000000 : 1000);
-        comparison = aTraction - bTraction;
+        comparison = (b.customers || 0) - (a.customers || 0);
         break;
     }
     
@@ -290,21 +431,26 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
           )}
         </div>
 
-        {/* Bookmark button */}
-        <div className="absolute top-4 right-4 z-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onBookmarkStartup(startup.id)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white"
-          >
-            {savedStartups.includes(startup.id) ? (
-              <BookmarkCheck className="h-4 w-4 text-blue-500" />
-            ) : (
-              <Bookmark className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        {/* Follow button */}
+        {currentUser?.user_type === 'investor' && (
+          <div className="absolute top-4 right-4 z-10">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleFollow(startup.id)}
+              disabled={loadingActions.has(startup.id)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 hover:bg-white"
+            >
+              {loadingActions.has(startup.id) ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : followingStartups.has(startup.id) ? (
+                <UserMinus className="h-4 w-4 text-red-500" />
+              ) : (
+                <UserPlus className="h-4 w-4 text-blue-500" />
+              )}
+            </Button>
+          </div>
+        )}
 
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
@@ -321,11 +467,18 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
               </div>
               
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={getStageColor(startup.stage)}>
-                  {startup.stage}
-                </Badge>
+                {startup.stage && (
+                  <Badge className={getStageColor(startup.stage)}>
+                    {startup.stage}
+                  </Badge>
+                )}
+                {startup.fundingNeeded && (
+                  <Badge variant="outline" className="text-xs">
+                    {startup.fundingNeeded}
+                  </Badge>
+                )}
                 <Badge variant="outline" className="text-xs">
-                  {startup.fundingNeeded}
+                  {startup.followers} followers
                 </Badge>
               </div>
             </div>
@@ -339,63 +492,87 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
 
           {/* Industries */}
           <div className="flex flex-wrap gap-1">
-            {startup.industry.slice(0, 3).map(ind => (
-              <Badge key={ind} variant="secondary" className="text-xs">
-                {ind}
-              </Badge>
-            ))}
-            {startup.industry.length > 3 && (
+            {startup.industry ? (
+              <>
+                {startup.industry.slice(0, 3).map(ind => (
+                  <Badge key={ind} variant="secondary" className="text-xs">
+                    {ind}
+                  </Badge>
+                ))}
+                {startup.industry.length > 3 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{startup.industry.length - 3}
+                  </Badge>
+                )}
+              </>
+            ) : (
               <Badge variant="secondary" className="text-xs">
-                +{startup.industry.length - 3}
+                {startup.category}
               </Badge>
             )}
           </div>
 
           {/* Key metrics */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-gray-400" />
-              <span>{startup.location}</span>
-            </div>
+            {startup.location && (
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-gray-400" />
+                <span>{startup.location}</span>
+              </div>
+            )}
             
-            <div className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-blue-400" />
-              <span>{startup.teamSize} team members</span>
-            </div>
+            {startup.teamSize && (
+              <div className="flex items-center gap-2 text-sm">
+                <Users className="h-4 w-4 text-blue-400" />
+                <span>{startup.teamSize} team members</span>
+              </div>
+            )}
             
-            <div className="flex items-center gap-2 text-sm">
-              <BarChart3 className="h-4 w-4 text-green-400" />
-              <span>{startup.revenue}</span>
-              {startup.growth !== "N/A" && (
-                <Badge variant="outline" className="text-xs text-green-600">
-                  {startup.growth}
-                </Badge>
-              )}
-            </div>
+            {startup.revenue && (
+              <div className="flex items-center gap-2 text-sm">
+                <BarChart3 className="h-4 w-4 text-green-400" />
+                <span>{startup.revenue}</span>
+                {startup.growth && startup.growth !== "N/A" && (
+                  <Badge variant="outline" className="text-xs text-green-600">
+                    {startup.growth}
+                  </Badge>
+                )}
+              </div>
+            )}
             
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <span>Founded {startup.foundedYear}</span>
-            </div>
+            {startup.foundedYear && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <span>Founded {startup.foundedYear}</span>
+              </div>
+            )}
           </div>
 
           {/* Engagement metrics */}
           <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                {startup.views}
-              </span>
-              <span className="flex items-center gap-1">
-                <Heart className="h-3 w-3" />
-                {startup.interests}
-              </span>
-              <span className="flex items-center gap-1">
-                <Zap className="h-3 w-3" />
-                {startup.responseRate}%
-              </span>
+              {startup.views && (
+                <span className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  {startup.views}
+                </span>
+              )}
+              {startup.interests && (
+                <span className="flex items-center gap-1">
+                  <Heart className="h-3 w-3" />
+                  {startup.interests}
+                </span>
+              )}
+              {startup.responseRate && (
+                <span className="flex items-center gap-1">
+                  <Zap className="h-3 w-3" />
+                  {startup.responseRate}%
+                </span>
+              )}
             </div>
-            <span>Active {startup.lastActive}</span>
+            {startup.lastActive && (
+              <span>Active {startup.lastActive}</span>
+            )}
           </div>
 
           {/* Action buttons */}
@@ -422,31 +599,78 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
               </Button>
             )}
             
-            {!interestedStartups.includes(startup.id) ? (
-              <Button
-                size="sm"
-                onClick={() => onExpressInterest(startup.id)}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600"
-              >
-                <Heart className="h-4 w-4 mr-1" />
-                Express Interest
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 border-green-500 text-green-600"
-                disabled
-              >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Interest Sent
-              </Button>
-            )}
+            <Button
+              size="sm"
+              onClick={() => onExpressInterest(startup.id)}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600"
+            >
+              <Heart className="h-4 w-4 mr-1" />
+              Express Interest
+            </Button>
           </div>
         </CardContent>
       </Card>
     </div>
   );
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Discover Startups
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Loading startups...
+            </p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-full mb-4"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Card className="text-center py-12">
+          <CardContent>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                <X className="h-8 w-8 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Failed to load startups
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {error}
+                </p>
+                <Button onClick={handleRefresh} className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -465,6 +689,14 @@ export const StartupDiscoveryGrid: React.FC<StartupDiscoveryGridProps> = ({
           <Badge variant="secondary">
             {sortedStartups.length} results
           </Badge>
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
           <Button
             variant="outline"
             onClick={() => setShowFilters(!showFilters)}

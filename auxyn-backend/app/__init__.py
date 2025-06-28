@@ -27,17 +27,25 @@ def create_app():
 
     # Import models
     from app.models import user, startup, rating, follow
+    from app.models import user_preferences, investor_profile, startup_profile
+    from app.models import match, match_insight
 
     # Register routes
     from app.routes.auth import auth_bp
     from app.routes.startup import startup_bp
     from app.routes.rating import rating_bp
     from app.routes.follow import follow_bp
+    from app.routes.profile import profile_bp
+    from app.routes.matching import matching_bp
+    from app.routes.insights import insights_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(startup_bp, url_prefix='/api/startups')
     app.register_blueprint(rating_bp, url_prefix='/api/startups')
     app.register_blueprint(follow_bp, url_prefix='/api/startups')
+    app.register_blueprint(profile_bp, url_prefix='/api/users')
+    app.register_blueprint(matching_bp, url_prefix='/api/matches')
+    app.register_blueprint(insights_bp, url_prefix='/api/matches')
 
     # JWT error handlers
     @jwt.expired_token_loader
